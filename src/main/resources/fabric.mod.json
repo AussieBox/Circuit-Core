@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "circlib",
+  "version": "${version}",
+  "name": "Circuit Lib",
+  "description": "Core library for AussieBox's mods",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/circlib/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "org.aussiebox.circlib.client.CircuitLibClient"
+    ],
+    "main": [
+      "org.aussiebox.circlib.CircuitLib"
+    ]
+  },
+  "mixins": [
+    "circlib.mixins.json",
+    {
+      "config": "circlib.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
