@@ -1,2 +1,2 @@
-Copyright (c) 2026 AussieBox
-All rights reserved.
+All Rights Reserved unless explicitly stated. See CONDITIONS.txt for more information.
+Copyright (C) 2026 AussieBox
