@@ -1,32 +1,42 @@
 {
   "schemaVersion": 1,
-  "id": "circlib",
+  "id": "circuit_core",
   "version": "${version}",
-  "name": "Circuit Lib",
-  "description": "Core library for AussieBox's mods",
+  "name": "Circuit Core",
+  "description": "Core \"library\" for many of AussieBox's mods",
   "authors": [],
   "contact": {},
   "license": "All-Rights-Reserved",
-  "icon": "assets/circlib/icon.png",
+  "icon": "assets/circuit_core/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "org.aussiebox.circlib.client.CircuitLibClient"
+      "org.aussiebox.circuit_core.client.CircuitCoreClient"
     ],
     "main": [
-      "org.aussiebox.circlib.CircuitLib"
+      "org.aussiebox.circuit_core.CircuitCore"
     ]
   },
   "mixins": [
-    "circlib.mixins.json",
+    "circuit_core.mixins.json",
     {
-      "config": "circlib.client.mixins.json",
+      "config": "circuit_core.client.mixins.json",
       "environment": "client"
     }
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",
-    "minecraft": "${minecraft_version}"
+    "minecraft": "${minecraft_version}",
+    "player_animation_library": "${pal_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/HHvfVMFzBB"
+      },
+      "badges": [ "library" ],
+      "update_checker": true
+    }
   }
 }
