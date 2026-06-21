@@ -1,4 +1,4 @@
-package org.aussiebox.circlib.helper;
+package org.aussiebox.circuit_core.helper;
 
 import net.minecraft.advancement.AdvancementEntry;
 import net.minecraft.advancement.PlayerAdvancementTracker;
@@ -6,13 +6,14 @@ import net.minecraft.advancement.criterion.CriterionProgress;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import org.aussiebox.circuit_core.util.StonecutterUtil;
 
 public class AdvancementHelper {
     public static AdvancementResult grantAdvancement(ServerPlayerEntity player, Identifier advancement) {
-        if (player.getServer() == null) return AdvancementResult.SERVER_NOT_FOUND;
+        if (StonecutterUtil.getServer(player) == null) return AdvancementResult.SERVER_NOT_FOUND;
         PlayerAdvancementTracker advancementTracker = player.getAdvancementTracker();
 
-        AdvancementEntry entry = player.getServer().getAdvancementLoader().get(advancement);
+        AdvancementEntry entry = StonecutterUtil.getServer(player).getAdvancementLoader().get(advancement);
         if (entry == null) return AdvancementResult.INVALID_ADVANCEMENT;
 
         if (!advancementTracker.getProgress(entry).isDone()) {
@@ -24,10 +25,10 @@ public class AdvancementHelper {
     }
 
     public static AdvancementResult revokeAdvancement(ServerPlayerEntity player, Identifier advancement) {
-        if (player.getServer() == null) return AdvancementResult.SERVER_NOT_FOUND;
+        if (StonecutterUtil.getServer(player) == null) return AdvancementResult.SERVER_NOT_FOUND;
         PlayerAdvancementTracker advancementTracker = player.getAdvancementTracker();
 
-        AdvancementEntry entry = player.getServer().getAdvancementLoader().get(advancement);
+        AdvancementEntry entry = StonecutterUtil.getServer(player).getAdvancementLoader().get(advancement);
         if (entry == null) return AdvancementResult.INVALID_ADVANCEMENT;
 
         if (advancementTracker.getProgress(entry).isDone()) {
@@ -39,10 +40,10 @@ public class AdvancementHelper {
     }
 
     public static AdvancementResult grantCriterion(ServerPlayerEntity player, Identifier advancement, String criterion) {
-        if (player.getServer() == null) return AdvancementResult.SERVER_NOT_FOUND;
+        if (StonecutterUtil.getServer(player) == null) return AdvancementResult.SERVER_NOT_FOUND;
         PlayerAdvancementTracker advancementTracker = player.getAdvancementTracker();
 
-        AdvancementEntry entry = player.getServer().getAdvancementLoader().get(advancement);
+        AdvancementEntry entry = StonecutterUtil.getServer(player).getAdvancementLoader().get(advancement);
         if (advancement == null) return AdvancementResult.INVALID_ADVANCEMENT;
 
         CriterionProgress progress = advancementTracker.getProgress(entry).getCriterionProgress(criterion);
@@ -54,10 +55,10 @@ public class AdvancementHelper {
     }
 
     public static AdvancementResult revokeCriterion(ServerPlayerEntity player, Identifier advancement, String criterion) {
-        if (player.getServer() == null) return AdvancementResult.SERVER_NOT_FOUND;
+        if (StonecutterUtil.getServer(player) == null) return AdvancementResult.SERVER_NOT_FOUND;
         PlayerAdvancementTracker advancementTracker = player.getAdvancementTracker();
 
-        AdvancementEntry entry = player.getServer().getAdvancementLoader().get(advancement);
+        AdvancementEntry entry = StonecutterUtil.getServer(player).getAdvancementLoader().get(advancement);
         if (advancement == null) return AdvancementResult.INVALID_ADVANCEMENT;
 
         CriterionProgress progress = advancementTracker.getProgress(entry).getCriterionProgress(criterion);

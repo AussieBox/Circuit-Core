@@ -1,4 +1,4 @@
-package org.aussiebox.circlib.helper;
+package org.aussiebox.circuit_core.helper;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -10,7 +10,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.aussiebox.circlib.CircuitLib;
+import org.aussiebox.circuit_core.CircuitCore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class ItemGroupHelper {
     public static void addEntry(Identifier groupID, ItemStack item) {
         if (!groupIDs.containsKey(groupID)) {
             registerGroup(FabricItemGroup.builder().displayName(Text.literal("Unregistered ItemGroup")).icon(Items.BARRIER::getDefaultStack).build(), groupID);
-            CircuitLib.LOGGER.warn("Item {} was registered into an unregistered group, creating default group", item.getRegistryEntry().getIdAsString());
+            CircuitCore.LOGGER.warn("Item {} was registered into an unregistered group, creating default group", item.getRegistryEntry().getIdAsString());
         }
 
         List<ItemStack> list = entryMap.getOrDefault(groupID, new ArrayList<>());
@@ -38,7 +38,7 @@ public class ItemGroupHelper {
     public static void init() {
         ItemGroupEvents.MODIFY_ENTRIES_ALL.register((group, entries) -> {
             Identifier groupId = Registries.ITEM_GROUP.getId(group);
-            if (groupId != null) CircuitLib.LOGGER.info(groupId.toString());
+            if (groupId != null) CircuitCore.LOGGER.info(groupId.toString());
 
             if (groupId != null && groupIDs.containsKey(groupId)) {
                 List<ItemStack> items = entryMap.getOrDefault(groupId, new ArrayList<>());

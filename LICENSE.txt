@@ -1,2 +1,5 @@
 All Rights Reserved unless explicitly stated. See CONDITIONS.txt for more information.
 Copyright (C) 2026 AussieBox
+
+The following files are under the "Massachusetts Institute of Technology" (MIT) License:
+Observable.java

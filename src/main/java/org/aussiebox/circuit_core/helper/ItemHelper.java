@@ -1,4 +1,4 @@
-package org.aussiebox.circlib.helper;
+package org.aussiebox.circuit_core.helper;
 
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;

@@ -1,4 +1,4 @@
-package org.aussiebox.circlib.config;
+package org.aussiebox.circuit_core.config;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
@@ -30,5 +30,10 @@ public class Config {
             if (!Objects.equals(folders.getLast(), folder)) subfolder.append(File.pathSeparator);
         }
         return new File(FabricLoader.getInstance().getConfigDir().toFile(), subfolder.toString());
+    }
+
+    public enum ConfigType {
+        CLIENT,
+        SERVER
     }
 }

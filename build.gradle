@@ -1,6 +1,7 @@
 plugins {
-    id 'fabric-loom' version '1.14-SNAPSHOT'
+    id 'fabric-loom' version '1.16.1'
     id 'maven-publish'
+    id 'io.freefair.lombok' version '9.0.0'
 }
 
 version = "${property('mod_version')}+${sc.current.version}"
@@ -14,7 +15,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        "circlib" {
+        "circuit_core" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
@@ -28,6 +29,25 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+    maven {
+        name = "RedlanceMinecraft"
+        url = "https://repo.redlance.org/public"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
+        name = "DevAuth"
+        url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
+    }
 }
 
 dependencies {
@@ -37,6 +57,10 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${property('fabric_loader')}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${property('fabric_api')}"
+
+    modImplementation "com.zigythebird.playeranim:PlayerAnimationLibFabric:${property('pal_version')}"
+
+    modRuntimeOnly "me.djtheredstoner:DevAuth-${property('devauth_module')}:${property('devauth_version')}"
 }
 
 processResources {
@@ -48,7 +72,8 @@ processResources {
     filesMatching("fabric.mod.json") {
         expand "version": version,
                 "minecraft_version": sc.current.version,
-                "loader_version": project.property('fabric_loader')
+                "loader_version": project.property('fabric_loader'),
+                "pal_version": project.property('pal_version')
     }
 }
 
