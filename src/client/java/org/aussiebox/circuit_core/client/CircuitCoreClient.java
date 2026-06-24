@@ -38,7 +38,7 @@ public class CircuitCoreClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         //? <1.21.10
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(AntiPiracyCoconutDetector.INSTANCE);
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SecretSillyDetector.INSTANCE);
         //? >=1.21.10
         //ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(AntiPiracyCoconutDetector.INSTANCE.getFabricId(), AntiPiracyCoconutDetector.INSTANCE);
 

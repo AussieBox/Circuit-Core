@@ -2,9 +2,10 @@ plugins {
     id 'fabric-loom' version '1.16.1'
     id 'maven-publish'
     id 'io.freefair.lombok' version '9.0.0'
+    id "me.modmuss50.mod-publish-plugin" version "2.0.1"
 }
 
-version = "${property('mod_version')}+${sc.current.version}"
+version = "${property('mod_version')}-${sc.current.version}"
 group = project.maven_group
 
 base {
@@ -21,7 +22,6 @@ loom {
         }
     }
 }
-
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
@@ -48,6 +48,7 @@ repositories {
         name = "DevAuth"
         url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
     }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -58,7 +59,7 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${property('fabric_api')}"
 
-    modImplementation "com.zigythebird.playeranim:PlayerAnimationLibFabric:${property('pal_version')}"
+    modImplementation include("com.zigythebird.playeranim:PlayerAnimationLibFabric:${property('pal_version')}")
 
     modRuntimeOnly "me.djtheredstoner:DevAuth-${property('devauth_module')}:${property('devauth_version')}"
 }
@@ -94,7 +95,6 @@ jar {
     }
 }
 
-// configure the maven publication
 publishing {
     publications {
         create("mavenJava", MavenPublication) {
@@ -102,12 +102,27 @@ publishing {
             from components.java
         }
     }
+}
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+publishMods {
+    file = remapJar.archiveFile
+    modLoaders.add("fabric")
+    changelog = providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md")).asText
+    type = BETA
+
+    modrinth {
+        accessToken = providers.gradleProperty("token.modrinth.publish")
+        projectId = "WsxvKe6j"
+        minecraftVersions.add("${sc.current.version}")
+        embeds("player-animation-library")
+        projectDescription = providers.fileContents(rootProject.layout.projectDirectory.file("README.md")).asText
+    }
+    github {
+        accessToken = providers.gradleProperty("token.github.publish")
+        repository = "AussieBox/Circuit-Core"
+        commitish = "main"
+        tagName = "${sc.current.version}/${property('mod_version')}"
+
+        allowEmptyFiles = true
     }
 }
