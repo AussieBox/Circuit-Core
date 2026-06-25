@@ -40,7 +40,7 @@ public class CircuitCoreClient implements ClientModInitializer {
         //? <1.21.10
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SecretSillyDetector.INSTANCE);
         //? >=1.21.10
-        //ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(AntiPiracyCoconutDetector.INSTANCE.getFabricId(), AntiPiracyCoconutDetector.INSTANCE);
+        //ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(SecretSillyDetector.INSTANCE.getFabricId(), SecretSillyDetector.INSTANCE);
 
 //        ConfigRegistry.registerConfig(new Config(CircuitCore.id("test-client")), Config.ConfigType.CLIENT);
 
