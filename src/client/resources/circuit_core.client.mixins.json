@@ -1,9 +1,15 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "org.aussiebox.circuit-core.client.mixin",
+  "package": "org.aussiebox.circuit_core.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "HandledScreenMixin",
+    "MinecraftClientMixin"
+  ],
+  "mixins": [
+    "PlayerInventoryMixin",
+    "SlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1

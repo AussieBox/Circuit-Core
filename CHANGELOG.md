@@ -1,1 +1,1 @@
-Attempt to fix Jitpack
+Attempt to fix Jitpack (again)

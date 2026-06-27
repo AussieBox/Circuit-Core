@@ -1,12 +1,18 @@
 package org.aussiebox.circuit_core;
 
+import com.zigythebird.playeranimcore.animation.Animation;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import org.aussiebox.circuit_core.command.MainCommand;
 import org.aussiebox.circuit_core.helper.ItemGroupHelper;
 import org.aussiebox.circuit_core.network.SetAnimationS2CPayload;
+import org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload;
+import org.aussiebox.circuit_core.pal.ControllerRegistry;
+import org.aussiebox.circuit_core.pal.PALController;
+import org.aussiebox.circuit_core.pal.animation.PALStackAnimation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +25,7 @@ public class CircuitCore implements ModInitializer {
         return Identifier.of(MOD_ID, path);
     }
 
-//    public static final PALController TEST_CONTROLLER = ControllerRegistry.registerController(new PALController(id("test"), 1500, new PALAnimation(id("test_anim"), Animation.LoopType.PLAY_ONCE)));
+    public static final PALController TEST_CONTROLLER = ControllerRegistry.registerController(new PALController(id("test"), 1500, new PALStackAnimation(id("test_anim"), Animation.LoopType.HOLD_ON_LAST_FRAME, Items.IRON_SWORD, new PALStackAnimation.Behavior(false, true, false, true))));
 
     @Override
     public void onInitialize() {
@@ -38,6 +44,7 @@ public class CircuitCore implements ModInitializer {
 //        TEST_CONTROLLER.getAnimation(id("test_anim")).loopType.set(Animation.LoopType.HOLD_ON_LAST_FRAME);
 
         PayloadTypeRegistry.playS2C().register(SetAnimationS2CPayload.ID, SetAnimationS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SetStackAnimationS2CPayload.ID, SetStackAnimationS2CPayload.CODEC);
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             MainCommand.register(dispatcher);

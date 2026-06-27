@@ -9,25 +9,28 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-//? >=1.21.10
-//import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import org.aussiebox.circuit_core.CircuitCoreConstants;
+import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALControllerHandler;
-import org.aussiebox.circuit_core.client.pal.PALHelper;
 import org.aussiebox.circuit_core.network.SetAnimationS2CPayload;
+import org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload;
 import org.aussiebox.circuit_core.pal.ControllerRegistry;
 import org.aussiebox.circuit_core.pal.PALAnimation;
 import org.aussiebox.circuit_core.pal.PALController;
 
 import java.util.Objects;
 import java.util.UUID;
+
+//? >=1.21.10
+//import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 public class CircuitCoreClient implements ClientModInitializer {
     /// Registry containing the {@link Identifier Identifier} of every registered {@link PALController PALController}.<br>
@@ -76,7 +79,21 @@ public class CircuitCoreClient implements ClientModInitializer {
                 ClientWorld world = context.client().world;
                 if (world != null) {
                     PlayerEntity targetPlayer = world.getPlayerByUuid(payload.playerUUID());
-                    if (targetPlayer instanceof ClientPlayerEntity target) PALHelper.setAnimation(target, payload.controller(), payload.animation());
+                    if (targetPlayer instanceof ClientPlayerEntity target) PALClientHelper.setAnimation(target, payload.controller(), payload.animation());
+                }
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(SetStackAnimationS2CPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                ClientWorld world = context.client().world;
+                if (world != null) {
+                    PlayerEntity targetPlayer = world.getPlayerByUuid(payload.playerUUID());
+                    if (targetPlayer instanceof ClientPlayerEntity target) {
+                        PALClientHelper.setStack(target, payload.controller(), payload.stack());
+                        PALClientHelper.setActiveHand(target, payload.controller(), Hand.valueOf(payload.hand()));
+                        PALClientHelper.setAnimation(target, payload.controller(), payload.animation());
+                    }
                 }
             });
         });

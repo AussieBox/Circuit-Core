@@ -1,0 +1,46 @@
+[
+  {
+    "id": "TASK_1",
+    "priority": "HIGH",
+    "tags": [],
+    "title": "Fix ScreenHandlerMixin",
+    "description": "",
+    "status": "TODO",
+    "date": {
+      "date": {
+        "year": 2026,
+        "month": 6,
+        "day": 27
+      },
+      "time": {
+        "hour": 20,
+        "minute": 46,
+        "second": 45,
+        "nano": 230257600
+      }
+    },
+    "isImported": false
+  },
+  {
+    "id": "TASK_4",
+    "priority": "CRITICAL",
+    "tags": [],
+    "title": "Fix being able to offhand items when slot is locked",
+    "description": "",
+    "status": "TODO",
+    "date": {
+      "date": {
+        "year": 2026,
+        "month": 6,
+        "day": 27
+      },
+      "time": {
+        "hour": 21,
+        "minute": 7,
+        "second": 5,
+        "nano": 658786400
+      }
+    },
+    "isImported": false
+  }
+]
