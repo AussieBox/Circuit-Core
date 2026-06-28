@@ -65,7 +65,6 @@ dependencies {
         exclude group: "io.github.llamalad7"
     }
 
-
     modRuntimeOnly "me.djtheredstoner:DevAuth-${property('devauth_module')}:${property('devauth_version')}"
 }
 
@@ -113,7 +112,7 @@ publishMods {
     file = remapJar.archiveFile
     modLoaders.add("fabric")
     changelog = providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md")).asText
-    type = BETA
+    type = STABLE
 
     modrinth {
         accessToken = providers.gradleProperty("token.modrinth.publish")

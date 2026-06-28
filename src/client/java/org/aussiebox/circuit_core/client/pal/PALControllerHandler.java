@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class PALControllerHandler {
     public final Identifier controllerId;
     public final AbstractClientPlayerEntity player;
-    public Identifier animation = CircuitCoreConstants.NO_ANIMATION;
+    public Identifier animation = CircuitCoreConstants.NULL_ANIMATION;
     @Nullable public ItemStack stack = null;
     @Nullable public Hand activeHand = null;
 

@@ -14,9 +14,12 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import org.aussiebox.circuit_core.CircuitCore;
 import org.aussiebox.circuit_core.CircuitCoreConstants;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALControllerHandler;
@@ -25,6 +28,7 @@ import org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload;
 import org.aussiebox.circuit_core.pal.ControllerRegistry;
 import org.aussiebox.circuit_core.pal.PALAnimation;
 import org.aussiebox.circuit_core.pal.PALController;
+import org.aussiebox.circuit_core.pal.animation.PALStackAnimation;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -63,10 +67,18 @@ public class CircuitCoreClient implements ClientModInitializer {
                         PALControllerHandler handler = handlerRegistry.get(id).get(player.getUuid());
                         if (handler == null) return PlayState.STOP;
 
-                        if (Objects.equals(handler.animation, CircuitCoreConstants.NO_ANIMATION)) return PlayState.STOP;
+                        if (Objects.equals(handler.animation, CircuitCoreConstants.NULL_ANIMATION) || Objects.equals(handler.animation, CircuitCoreConstants.NO_ANIMATION)) return PlayState.STOP;
 
                         PALAnimation animation = controller.getAnimation(handler.animation);
-                        if (animation != null) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(animation.id, animation.loopType.get()).build());
+                        if (animation instanceof PALStackAnimation stackAnimation) {
+                            if (handler.stack != null && handler.stack.isOf(stackAnimation.expectedItem.get())) {
+                                if ((stackAnimation.leftHandedId == CircuitCoreConstants.NO_ANIMATION || stackAnimation.leftHandedId == CircuitCoreConstants.NULL_ANIMATION) && (stackAnimation.rightHandedId == CircuitCoreConstants.NO_ANIMATION || stackAnimation.rightHandedId == CircuitCoreConstants.NULL_ANIMATION))
+                                    return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(stackAnimation.id, animation.loopType.get()).build());
+
+                                if (player.getMainArm() == Arm.LEFT) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(handler.activeHand == Hand.MAIN_HAND ? stackAnimation.leftHandedId : stackAnimation.rightHandedId, animation.loopType.get()).build());
+                                else if (player.getMainArm() == Arm.RIGHT) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(handler.activeHand == Hand.MAIN_HAND ? stackAnimation.rightHandedId : stackAnimation.leftHandedId, animation.loopType.get()).build());
+                            } else return PlayState.STOP;
+                        } else if (animation != null) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(animation.id, animation.loopType.get()).build());
 
                         return PlayState.STOP;
                     });
@@ -90,8 +102,20 @@ public class CircuitCoreClient implements ClientModInitializer {
                 if (world != null) {
                     PlayerEntity targetPlayer = world.getPlayerByUuid(payload.playerUUID());
                     if (targetPlayer instanceof ClientPlayerEntity target) {
-                        PALClientHelper.setStack(target, payload.controller(), payload.stack());
-                        PALClientHelper.setActiveHand(target, payload.controller(), Hand.valueOf(payload.hand()));
+
+                        Hand hand = Hand.MAIN_HAND;
+                        if (payload.hand().contains("NULL") || payload.stack().isEmpty()) {
+                            PALClientHelper.setAnimation(target, payload.controller(), null);
+                            PALClientHelper.setStack(target, payload.controller(), null);
+                            PALClientHelper.setActiveHand(target, payload.controller(), null);
+                            return;
+                        } else if (payload.hand().contains("AUTO")) {
+                            if (ItemStack.areItemsAndComponentsEqual(target.getOffHandStack(), payload.stack().get())) hand = Hand.OFF_HAND;
+                        } else hand = Hand.valueOf(payload.hand());
+
+                        CircuitCore.LOGGER.info(String.valueOf(payload.stack().get()));
+                        PALClientHelper.setStack(target, payload.controller(), payload.stack().get());
+                        PALClientHelper.setActiveHand(target, payload.controller(), hand);
                         PALClientHelper.setAnimation(target, payload.controller(), payload.animation());
                     }
                 }
