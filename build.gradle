@@ -59,11 +59,12 @@ dependencies {
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${property('fabric_api')}"
 
-    modApi(include("com.zigythebird.playeranim:PlayerAnimationLibFabric:${property('pal_version')}")) {
+    modApi ("com.zigythebird.playeranim:PlayerAnimationLibFabric:${property('pal_version')}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
         exclude group: "net.fabricmc.fabric-api"
         exclude group: "io.github.llamalad7"
     }
+    include "com.zigythebird.playeranim:PlayerAnimationLibFabric:${property('pal_version')}"
 
     modRuntimeOnly "me.djtheredstoner:DevAuth-${property('devauth_module')}:${property('devauth_version')}"
 }
