@@ -2,6 +2,7 @@ package org.aussiebox.circuit_core.pal;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Identifier;
+import org.aussiebox.circuit_core.pal.animation.PALStackAnimation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,10 @@ public class PALController {
     }
 
     public PALAnimation getAnimation(Identifier id) {
+        for (PALAnimation anim : animations.values()) {
+            if (!(anim instanceof PALStackAnimation stackAnim)) continue;
+            if (stackAnim.leftHandedId.equals(id) || stackAnim.rightHandedId.equals(id)) return stackAnim;
+        }
         return animations.getOrDefault(id, null);
     }
 

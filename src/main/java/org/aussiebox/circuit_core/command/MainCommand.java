@@ -1,15 +1,23 @@
 package org.aussiebox.circuit_core.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //? 1.21.11
 //import net.minecraft.command.DefaultPermissions;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -22,17 +30,14 @@ import org.aussiebox.circuit_core.pal.PALHelper;
 import org.aussiebox.circuit_core.pal.animation.PALStackAnimation;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class MainCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
                 CommandManager.literal(CircuitCore.MOD_ID)
                         .then(CommandManager.literal("animation")
-                                //? <1.21.11
-                                .requires(context -> context.hasPermissionLevel(2))
-                                //? 1.21.11
-                                //.requires(context -> context.getPermissions().hasPermission(DefaultPermissions.GAMEMASTERS))
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .then(CommandManager.argument("controller", IdentifierArgumentType.identifier())
                                                 .then(CommandManager.argument("animation", IdentifierArgumentType.identifier())
@@ -42,15 +47,19 @@ public class MainCommand {
                                 )
                         )
                         .then(CommandManager.literal("stack_animation")
-                                //? <1.21.11
-                                .requires(context -> context.hasPermissionLevel(2))
-                                //? 1.21.11
-                                //.requires(context -> context.getPermissions().hasPermission(DefaultPermissions.GAMEMASTERS))
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .then(CommandManager.argument("controller", IdentifierArgumentType.identifier())
                                                 .then(CommandManager.argument("animation", IdentifierArgumentType.identifier())
                                                         .executes(MainCommand::setStackAnimation)
                                                 )
+                                        )
+                                )
+                        )
+                        .then(CommandManager.literal("effect")
+                                .then(CommandManager.argument("effect", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.STATUS_EFFECT))
+                                        .executes((context -> toggleEffect(context, false)))
+                                        .then(CommandManager.argument("amplifier",  IntegerArgumentType.integer(0, 255))
+                                                .executes((context -> toggleEffect(context, true)))
                                         )
                                 )
                         )
@@ -64,7 +73,7 @@ public class MainCommand {
             PlayerEntity player = context.getArgument("player", EntitySelector.class).getPlayer(context.getSource());
             Identifier controller = context.getArgument("controller", Identifier.class);
             Identifier animation = context.getArgument("animation", Identifier.class);
-            if (Objects.equals(animation, Identifier.ofVanilla("null"))) animation = CircuitCoreConstants.NO_ANIMATION;
+            if (Objects.equals(animation, Identifier.of("null"))) animation = CircuitCoreConstants.NULL_ANIMATION;
 
             ServerPlayNetworking.send(context.getSource().getPlayer(), new SetAnimationS2CPayload(player.getUuid(), controller, animation));
         } catch (Exception e) {
@@ -82,21 +91,22 @@ public class MainCommand {
             PlayerEntity player = context.getArgument("player", EntitySelector.class).getPlayer(context.getSource());
             Identifier controller = context.getArgument("controller", Identifier.class);
             Identifier animation = context.getArgument("animation", Identifier.class);
-            ItemStack stack = null;
-            String hand = null;
-            if (Objects.equals(animation, Identifier.ofVanilla("null"))) animation = CircuitCoreConstants.NO_ANIMATION;
-            else {
+            Optional<ItemStack> stack = Optional.empty();
+            String hand = "AUTO";
+            if (Objects.equals(animation.getPath(), "null") || Objects.equals(animation.getPath(), "none")) {
+                animation = CircuitCoreConstants.NULL_ANIMATION;
+                hand = "NULL";
+            } else {
                 PALStackAnimation stackAnimation = PALHelper.getAnimation(PALStackAnimation.class, controller, animation);
                 if (stackAnimation == null) {
                     context.getSource().sendError(Text.translatable("command.circuit_core.main.stack_animation.incorrect_type"));
                     return 1;
                 }
                 if (player.getMainHandStack().isOf(stackAnimation.expectedItem.get())) {
-                    stack = player.getMainHandStack();
+                    stack = Optional.of(player.getMainHandStack());
                     hand = "MAIN_HAND";
-                }
-                else if (player.getOffHandStack().isOf(stackAnimation.expectedItem.get())) {
-                    stack = player.getOffHandStack();
+                } else if (player.getOffHandStack().isOf(stackAnimation.expectedItem.get())) {
+                    stack = Optional.of(player.getOffHandStack());
                     hand = "OFF_HAND";
                 }
             }
@@ -107,6 +117,21 @@ public class MainCommand {
             return 0;
         }
 
+        return 1;
+    }
+
+    public static int toggleEffect(CommandContext<ServerCommandSource> context, boolean hasAmplifier) throws CommandSyntaxException {
+        PlayerEntity player = context.getSource().getPlayer();
+        if (player == null) return 0;
+        RegistryEntry<StatusEffect> statusEffect = RegistryEntryReferenceArgumentType.getStatusEffect(context, "effect");
+
+        if (player.hasStatusEffect(statusEffect)) player.removeStatusEffect(statusEffect);
+        else {
+            if (hasAmplifier) {
+                int amplifier = IntegerArgumentType.getInteger(context, "amplifier");
+                player.addStatusEffect(new StatusEffectInstance(statusEffect, -1, amplifier, false, false));
+            } else player.addStatusEffect(new StatusEffectInstance(statusEffect, -1, 0, false, false));
+        }
         return 1;
     }
 }

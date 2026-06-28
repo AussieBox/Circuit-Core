@@ -1,7 +1,7 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"test_anim": {
+		"test_anim_right": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.75,
 			"blend_weight": 0.2,
@@ -27,7 +27,7 @@
 				}
 			}
 		},
-		"net_use_left": {
+		"test_anim_left": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.75,
 			"blend_weight": 0.2,

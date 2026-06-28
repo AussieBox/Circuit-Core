@@ -1,6 +1,7 @@
 package org.aussiebox.circuit_core.client.pal;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -21,12 +22,30 @@ public class PALClientHelper {
     /// To set the animation for the given player on multiple clients, send a {@link org.aussiebox.circuit_core.network.SetAnimationS2CPayload SetAnimationS2CPayload} to each client.
     ///
     /// @return Whether the animation was successfully set
-    /// @see org.aussiebox.circuit_core.network.SetAnimationS2CPayload
+    /// @see org.aussiebox.circuit_core.network.SetAnimationS2CPayload SetAnimationS2CPayload
+    /// @see org.aussiebox.circuit_core.pal.PALAnimation PALAnimation
     public static boolean setAnimation(AbstractClientPlayerEntity player, Identifier controller, Identifier animation) {
-        if (animation == null) animation = CircuitCoreConstants.NO_ANIMATION;
+        if (animation == null) animation = CircuitCoreConstants.NULL_ANIMATION;
         PALControllerHandler handler = getHandler(player, controller);
         if (handler == null) return false;
         handler.animation = animation;
+        setHandler(handler);
+        return true;
+    }
+
+    /// Sets the {@link PALStackAnimation StackAnimation} of the given {@link PALControllerHandler PALControllerHandler} for a specific player on the client.<br>
+    /// To set the animation for the given player on multiple clients, send a {@link org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload SetStackAnimationS2CPayload} to each client.
+    ///
+    /// @return Whether the animation was successfully set
+    /// @see org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload SetStackAnimationS2CPayload
+    /// @see PALStackAnimation PALStackAnimation
+    public static boolean setStackAnimation(AbstractClientPlayerEntity player, Identifier controller, Identifier animation, @Nullable ItemStack stack, @Nullable Hand hand) {
+        if (animation == null) animation = CircuitCoreConstants.NULL_ANIMATION;
+        PALControllerHandler handler = getHandler(player, controller);
+        if (handler == null) return false;
+        handler.animation = animation;
+        handler.stack = stack;
+        handler.activeHand = hand;
         setHandler(handler);
         return true;
     }
@@ -101,5 +120,37 @@ public class PALClientHelper {
             if (stackAnimation != null) returning.put(stackAnimation.id, stackAnimation);
         });
         return returning;
+    }
+
+    public static boolean shouldBeLocked(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        if (MinecraftClient.getInstance().player == null) return false;
+        List<PALControllerHandler> handlers = PALClientHelper.getAllHandlers(MinecraftClient.getInstance().player);
+        Object2ObjectOpenHashMap<Identifier, PALStackAnimation> stackAnimations = PALClientHelper.getStackAnimationsOnPlayer(MinecraftClient.getInstance().player);
+
+        for (PALControllerHandler handler : handlers) {
+            PALStackAnimation animation = null;
+            for (PALStackAnimation anim : stackAnimations.values()) {
+                if (anim.leftHandedId.equals(handler.animation) || anim.rightHandedId.equals(handler.animation)) {
+                    animation = anim;
+                    break;
+                }
+            }
+            if (animation == null) continue;
+            PALStackAnimation.Behavior behavior = animation.behavior.get();
+
+            if (handler.stack != null) {
+                if (handler.activeHand == Hand.MAIN_HAND) {
+                    if (ItemStack.areItemsAndComponentsEqual(stack, handler.stack) && ItemStack.areItemsAndComponentsEqual(MinecraftClient.getInstance().player.getMainHandStack(), stack) && behavior.lockSlotWithStack) return true;
+                    if (ItemStack.areItemsAndComponentsEqual(MinecraftClient.getInstance().player.getOffHandStack(), stack) && behavior.lockOtherHand) return true;
+                }
+                if (handler.activeHand == Hand.OFF_HAND) {
+                    if (ItemStack.areItemsAndComponentsEqual(stack, handler.stack) && ItemStack.areItemsAndComponentsEqual(MinecraftClient.getInstance().player.getOffHandStack(), stack) && behavior.lockSlotWithStack) return true;
+                    if (ItemStack.areItemsAndComponentsEqual(MinecraftClient.getInstance().player.getMainHandStack(), stack) && behavior.lockOtherHand) return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
