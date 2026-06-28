@@ -30,6 +30,9 @@ The mod also supports four versions at the moment: ```1.21.1```, ```1.21.8```, `
 ## Depending on Circuit Core
 You are free to depend on Circuit Core as you wish, and do not require credit to do so. However, keep in mind that the code itself is licensed under ARR (with conditions).
 
+> [!IMPORTANT]
+> If fetching the dependency fails, check [Jitpack](https://jitpack.io/#AussieBox/Circuit-Core) to ensure your version has finished building. If it's still in progress, wait for it to finish then try again.
+
 **To depend on Circuit Core, add this to your ```build.gradle```:**
 ```gradle
 // Inside your repositories block:
@@ -45,7 +48,7 @@ circuit_core_version={SEE TABLE BELOW}
 ```
 | Game Version | Latest Version | Supported |
 |:------------:|:--------------:|:---------:|
-|   1.21.11    |     0.1.0      |     ✅     |
-|   1.21.10    |     0.1.0      |     ✅     |
-|    1.21.8    |     0.1.0      |     ✅     |
-|    1.21.1    |     0.1.0      |     ✅     |
+|   1.21.11    |     0.1.1      |     ✅     |
+|   1.21.10    |     0.1.1      |     ✅     |
+|    1.21.8    |     0.1.1      |     ✅     |
+|    1.21.1    |     0.1.1      |     ✅     |
