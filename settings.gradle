@@ -6,7 +6,7 @@ pluginManagement {
         }
         gradlePluginPortal()
         maven {
-            url = "https://maven.kikugie.dev/snapshots"
+            url = "https://kikugie.dev"
             name = "KikuGie Snapshots"
         }
     }
@@ -16,23 +16,28 @@ plugins {
     id 'dev.kikugie.stonecutter' version '0.9.4'
 }
 
+def jitpackVersion = System.getenv("VERSION")
+def targetMcVersion = "1.21.1"
+
+if (jitpackVersion != null) {
+    if (jitpackVersion.contains("~")) {
+        targetMcVersion = jitpackVersion.split("~").first()
+    } else {
+        targetMcVersion = jitpackVersion
+    }
+}
+
 stonecutter {
     kotlinController = false
     centralScript = "build.gradle"
 
-    def jitpackVersion = System.getenv("VERSION")
-    def targetVersion = "1.21.1"
-
-    if (jitpackVersion != null) {
-        if (jitpackVersion.contains("~")) {
-            targetVersion = jitpackVersion.split("~").first()
-        } else {
-            targetVersion = jitpackVersion
-        }
-    }
-
     create(rootProject) {
         versions("1.21.11", "1.21.10", "1.21.8", "1.21.1")
-        vcsVersion = targetVersion
+        vcsVersion = targetMcVersion
     }
+}
+
+if (jitpackVersion != null) {
+    rootProject.name = "Circuit-Core"
+    include(":$targetMcVersion")
 }

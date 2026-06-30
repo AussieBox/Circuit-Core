@@ -3,4 +3,11 @@ jdk:
 before_install:
   - chmod +x ./gradlew
 install:
-  - ./gradlew publishToMavenLocal -Pversion=$VERSION
+  - |
+    if [[ "$VERSION" == *"~"* ]]; then
+      MC_VER=$(echo "$VERSION" | cut -d'~' -f1)
+    else
+      MC_VER=$VERSION
+    fi
+    echo "Configuring JitPack to isolate build to module: :$MC_VER"
+    ./gradlew :$MC_VER:publishToMavenLocal -Pversion=$VERSION
