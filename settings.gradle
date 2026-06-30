@@ -20,8 +20,19 @@ stonecutter {
     kotlinController = false
     centralScript = "build.gradle"
 
+    def jitpackVersion = System.getenv("VERSION")
+    def targetVersion = "1.21.1"
+
+    if (jitpackVersion != null) {
+        if (jitpackVersion.contains("~")) {
+            targetVersion = jitpackVersion.split("~").first()
+        } else {
+            targetVersion = jitpackVersion
+        }
+    }
+
     create(rootProject) {
         versions("1.21.11", "1.21.10", "1.21.8", "1.21.1")
-        vcsVersion = "1.21.1"
+        vcsVersion = targetVersion
     }
 }
