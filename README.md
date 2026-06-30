@@ -37,6 +37,10 @@ You are free to depend on Circuit Core as you wish, and do not require credit to
 ```gradle
 // Inside your repositories block:
 maven { url 'https://jitpack.io' }
+maven {
+  name = "RedlanceMinecraft"
+  url = "https://repo.redlance.org/public"
+}
 
 // Inside your dependencies block:
 modImplementation "com.github.AussieBox:Circuit-Core:${project.minecraft_version}~${project.circuit_core_version}"
@@ -48,7 +52,7 @@ circuit_core_version={SEE TABLE BELOW}
 ```
 | Game Version | Latest Version | Supported |
 |:------------:|:--------------:|:---------:|
-|   1.21.11    |     0.1.1      |     ✅     |
-|   1.21.10    |     0.1.1      |     ✅     |
-|    1.21.8    |     0.1.1      |     ✅     |
-|    1.21.1    |     0.1.1      |     ✅     |
+|   1.21.11    |     0.1.3      |     ✅     |
+|   1.21.10    |     0.1.3      |     ✅     |
+|    1.21.8    |     0.1.3      |     ✅     |
+|    1.21.1    |     0.1.3      |     ✅     |

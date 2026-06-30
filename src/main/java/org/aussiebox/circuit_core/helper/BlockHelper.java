@@ -41,7 +41,6 @@ public class BlockHelper {
         RegistryKey<Item> itemKey = RegistryKey.of(RegistryKeys.ITEM, id);
         BlockItem blockItem = new BlockItem(block, new Item.Settings());
         Registry.register(Registries.ITEM, itemKey, blockItem);
-        ItemGroupHelper.addEntry(groupId == null ? Identifier.of(id.getNamespace(), id.getNamespace()) : groupId, blockItem.getDefaultStack());
 
         Registry.register(Registries.BLOCK, blockKey, block);
         return block;
