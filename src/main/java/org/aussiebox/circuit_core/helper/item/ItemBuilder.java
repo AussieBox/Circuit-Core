@@ -2,6 +2,10 @@ package org.aussiebox.circuit_core.helper.item;
 
 import lombok.Getter;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +55,10 @@ public class ItemBuilder<I extends Item> {
     public I build() {
         if (builtItem != null) return builtItem;
         builtItem = factory.apply(settings);
+
+        RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, itemId);
+        if (!Registries.ITEM.contains(key)) Registry.register(Registries.ITEM, itemId, builtItem);
+        
         return builtItem;
     }
 }

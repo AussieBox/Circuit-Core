@@ -1,2 +1,2 @@
 ## Changes
-- Jitpack fixes AGAIN... hopefully. Same issue as last release.
+- Fixed (hopefully) Items being unregistered if queried early
