@@ -57,7 +57,7 @@ public class ItemBuilder<I extends Item> {
         builtItem = factory.apply(settings);
 
         RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, itemId);
-        if (!Registries.ITEM.contains(key)) Registry.register(Registries.ITEM, itemId, builtItem);
+        if (!Registries.ITEM.contains(key)) builtItem = Registry.register(Registries.ITEM, itemId, factory.apply(settings));
         
         return builtItem;
     }
