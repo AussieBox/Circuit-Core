@@ -40,8 +40,10 @@ public class BlockItemBuilder<I extends BlockItem> extends ItemBuilder<I> {
 
         RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, itemId);
         //? >= 1.21.8
-        //settings.registryKey(key);
-        if (!Registries.ITEM.contains(key)) builtItem = Registry.register(Registries.ITEM, itemId, factory.apply(settings));
+        //settings.registryKey(key).useBlockPrefixedTranslationKey();
+
+        I item = factory.apply(settings);
+        if (!Registries.ITEM.contains(key)) builtItem = Registry.register(Registries.ITEM, itemId, item);
 
         return builtItem;
     }

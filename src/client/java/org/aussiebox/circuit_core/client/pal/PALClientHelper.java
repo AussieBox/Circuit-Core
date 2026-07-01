@@ -67,7 +67,6 @@ public class PALClientHelper {
         if (handler == null) return false;
         handler.activeHand = hand;
         setHandler(handler);
-        CircuitCore.LOGGER.info(String.valueOf(hand));
         return true;
     }
 

@@ -33,13 +33,13 @@ public class CircuitCore implements ModInitializer {
     public void onInitialize() {
         Object2ObjectOpenHashMap<Identifier, ItemGroup> groupIDs = new Object2ObjectOpenHashMap<>();
 
+        ItemRegistry.bake();
         FabricLoader.getInstance().getEntrypointContainers("circ_item_groups", ItemGroupSupplier.class)
                 .forEach(container -> {
                     ItemGroupSupplier supplier = container.getEntrypoint();
                     groupIDs.put(supplier.getGroupId(), supplier.getGroupBuilder().build());
                 });
         for (Map.Entry<Identifier, ItemGroup> entry : groupIDs.entrySet()) Registry.register(Registries.ITEM_GROUP, entry.getKey(), entry.getValue());
-        ItemRegistry.bake();
 
         PayloadTypeRegistry.playS2C().register(SetAnimationS2CPayload.ID, SetAnimationS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SetStackAnimationS2CPayload.ID, SetStackAnimationS2CPayload.CODEC);

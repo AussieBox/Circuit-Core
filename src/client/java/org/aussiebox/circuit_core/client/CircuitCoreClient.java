@@ -112,8 +112,7 @@ public class CircuitCoreClient implements ClientModInitializer {
                         } else if (payload.hand().contains("AUTO")) {
                             if (ItemStack.areItemsAndComponentsEqual(target.getOffHandStack(), payload.stack().get())) hand = Hand.OFF_HAND;
                         } else hand = Hand.valueOf(payload.hand());
-
-                        CircuitCore.LOGGER.info(String.valueOf(payload.stack().get()));
+                        
                         PALClientHelper.setStack(target, payload.controller(), payload.stack().get());
                         PALClientHelper.setActiveHand(target, payload.controller(), hand);
                         PALClientHelper.setAnimation(target, payload.controller(), payload.animation());

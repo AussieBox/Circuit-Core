@@ -12,7 +12,6 @@ public class ConfigRegistry {
 
     public static void registerConfig(Config config, Config.ConfigType type) {
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            CircuitCore.LOGGER.info(String.valueOf(config.identifier));
             ConfigRegistry.clientConfig.put(config.identifier, config);
         }
         else ConfigRegistry.serverConfig.put(config.identifier, config);
