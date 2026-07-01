@@ -35,12 +35,12 @@ public class BlockItemBuilder<I extends BlockItem> extends ItemBuilder<I> {
         super(itemId, factory, settings, groupId);
     }
 
-    @Override
     public I build() {
         if (builtItem != null) return builtItem;
-        builtItem = factory.apply(settings);
 
         RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, itemId);
+        //? >= 1.21.8
+        //settings.registryKey(key);
         if (!Registries.ITEM.contains(key)) builtItem = Registry.register(Registries.ITEM, itemId, factory.apply(settings));
 
         return builtItem;
