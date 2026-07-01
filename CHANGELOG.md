@@ -1,2 +1,4 @@
+## Additions
+- ```BlockHelper``` now has methods to register a custom item alongside a block
 ## Changes
-- (Hopefully) final ```ItemBuilder``` fixes. I think. Sorry for spam uploading 😅
+- ```BlockHelper``` now works with the ```ItemRegistry``` system

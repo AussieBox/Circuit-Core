@@ -9,12 +9,14 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
+import org.aussiebox.circuit_core.helper.item.BlockItemBuilder;
+import org.aussiebox.circuit_core.helper.item.ItemRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
 public class BlockHelper {
-    //? 1.21.1 {
     public static <B extends Block> B register(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
         B block = blockFactory.apply(settings);
@@ -26,9 +28,13 @@ public class BlockHelper {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
         B block = blockFactory.apply(settings);
 
-        RegistryKey<Item> itemKey = RegistryKey.of(RegistryKeys.ITEM, id);
-        BlockItem blockItem = new BlockItem(block, new Item.Settings());
-        Registry.register(Registries.ITEM, itemKey, blockItem);
+        ItemRegistry.register(
+                new BlockItemBuilder<>(
+                        id,
+                        (settings1 -> new BlockItem(block, settings1)),
+                        new Item.Settings()
+                )
+        );
 
         Registry.register(Registries.BLOCK, blockKey, block);
         return block;
@@ -38,33 +44,49 @@ public class BlockHelper {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
         B block = blockFactory.apply(settings);
 
-        RegistryKey<Item> itemKey = RegistryKey.of(RegistryKeys.ITEM, id);
-        BlockItem blockItem = new BlockItem(block, new Item.Settings());
-        Registry.register(Registries.ITEM, itemKey, blockItem);
+        ItemRegistry.register(
+                new BlockItemBuilder<>(
+                        id,
+                        (settings1 -> new BlockItem(block, settings1)),
+                        new Item.Settings(),
+                        groupId
+                )
+        );
 
         Registry.register(Registries.BLOCK, blockKey, block);
         return block;
     }
-    //? }
 
-    //? >=1.21.8 {
-    /*public static <B extends Block> B register(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings) {
+    public static <B extends Block, I extends BlockItem> Pair<B, BlockItemBuilder<I>> registerWithCustomItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings,  Function<Item.Settings, I> itemFactory, Item.Settings itemSettings) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
-        B block = blockFactory.apply(settings.registryKey(blockKey));
+        B block = blockFactory.apply(settings);
+
+        BlockItemBuilder<I> item = ItemRegistry.register(
+                new BlockItemBuilder<>(
+                        id,
+                        itemFactory,
+                        itemSettings
+                )
+        );
+
         Registry.register(Registries.BLOCK, blockKey, block);
-        return block;
+        return new Pair<>(block, item);
     }
 
-    public static <B extends Block> B registerWithItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings) {
+    public static <B extends Block, I extends BlockItem> Pair<B, BlockItemBuilder<I>> registerWithCustomItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings, Function<Item.Settings, I> itemFactory, Item.Settings itemSettings, @Nullable Identifier groupId) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
-        B block = blockFactory.apply(settings.registryKey(blockKey));
+        B block = blockFactory.apply(settings);
 
-        RegistryKey<Item> itemKey = RegistryKey.of(RegistryKeys.ITEM, id);
-        BlockItem blockItem = new BlockItem(block, new Item.Settings().registryKey(itemKey).useBlockPrefixedTranslationKey());
-        Registry.register(Registries.ITEM, itemKey, blockItem);
+        BlockItemBuilder<I> item = ItemRegistry.register(
+                new BlockItemBuilder<>(
+                        id,
+                        itemFactory,
+                        itemSettings,
+                        groupId
+                )
+        );
 
         Registry.register(Registries.BLOCK, blockKey, block);
-        return block;
+        return new Pair<>(block, item);
     }
-    *///? }
 }
