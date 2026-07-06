@@ -19,14 +19,20 @@ import java.util.function.Function;
 public class BlockHelper {
     public static <B extends Block> B register(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
+        //? 1.21.1
         B block = blockFactory.apply(settings);
+        //? >=1.21.8
+        //B block = blockFactory.apply(settings.registryKey(blockKey));
         Registry.register(Registries.BLOCK, blockKey, block);
         return block;
     }
 
     public static <B extends Block> B registerWithItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
+        //? 1.21.1
         B block = blockFactory.apply(settings);
+        //? >=1.21.8
+        //B block = blockFactory.apply(settings.registryKey(blockKey));
 
         ItemRegistry.register(
                 new BlockItemBuilder<>(
@@ -42,7 +48,10 @@ public class BlockHelper {
 
     public static <B extends Block> B registerWithItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings, @Nullable Identifier groupId) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
+        //? 1.21.1
         B block = blockFactory.apply(settings);
+        //? >=1.21.8
+        //B block = blockFactory.apply(settings.registryKey(blockKey));
 
         ItemRegistry.register(
                 new BlockItemBuilder<>(
@@ -59,7 +68,10 @@ public class BlockHelper {
 
     public static <B extends Block, I extends BlockItem> Pair<B, BlockItemBuilder<I>> registerWithCustomItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings,  Function<Item.Settings, I> itemFactory, Item.Settings itemSettings) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
+        //? 1.21.1
         B block = blockFactory.apply(settings);
+        //? >=1.21.8
+        //B block = blockFactory.apply(settings.registryKey(blockKey));
 
         BlockItemBuilder<I> item = ItemRegistry.register(
                 new BlockItemBuilder<>(
@@ -75,7 +87,10 @@ public class BlockHelper {
 
     public static <B extends Block, I extends BlockItem> Pair<B, BlockItemBuilder<I>> registerWithCustomItem(Identifier id, Function<AbstractBlock.Settings, B> blockFactory, AbstractBlock.Settings settings, Function<Item.Settings, I> itemFactory, Item.Settings itemSettings, @Nullable Identifier groupId) {
         RegistryKey<Block> blockKey = RegistryKey.of(RegistryKeys.BLOCK, id);
+        //? 1.21.1
         B block = blockFactory.apply(settings);
+        //? >=1.21.8
+        //B block = blockFactory.apply(settings.registryKey(blockKey));
 
         BlockItemBuilder<I> item = ItemRegistry.register(
                 new BlockItemBuilder<>(
