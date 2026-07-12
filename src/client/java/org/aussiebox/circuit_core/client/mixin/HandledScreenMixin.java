@@ -4,10 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+//? >=1.21.10
+//import net.minecraft.client.input.KeyInput;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import org.aussiebox.circuit_core.CircuitCore;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,6 +55,7 @@ public class HandledScreenMixin {
         if (PALClientHelper.shouldBeLocked(slot.getStack(), slotId)) ci.cancel();
     }
 
+    //? <=1.21.8 {
     @Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelHotbarKeyPressed(int keyCode, int scanCode, CallbackInfoReturnable<Boolean> cir) {
         if (MinecraftClient.getInstance().player == null) return;
@@ -75,4 +77,29 @@ public class HandledScreenMixin {
             }
         }
     }
+    //? }
+
+    //? >=1.21.10 {
+    /*@Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
+    private void circuitCore$cancelHotbarKeyPressed(KeyInput keyInput, CallbackInfoReturnable<Boolean> cir) {
+        if (MinecraftClient.getInstance().player == null) return;
+
+        if (MinecraftClient.getInstance().options.swapHandsKey.matchesKey(keyInput) && focusedSlot != null) {
+            if (PALClientHelper.shouldBeLocked(focusedSlot.getStack()) || PALClientHelper.shouldBeLocked(MinecraftClient.getInstance().player.getOffHandStack())) {
+                cir.setReturnValue(false);
+                cir.cancel();
+                return;
+            }
+        }
+        for (int i = 0; i < 9; i++) {
+            if (MinecraftClient.getInstance().options.hotbarKeys[i].matchesKey(keyInput)) {
+                if (PALClientHelper.shouldBeLocked(i)) {
+                    cir.setReturnValue(false);
+                    cir.cancel();
+                    return;
+                }
+            }
+        }
+    }
+    *///? }
 }
