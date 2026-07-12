@@ -1,32 +1,24 @@
 package org.aussiebox.circuit_core.pal;
 
-import com.zigythebird.playeranimcore.animation.Animation;
-import net.minecraft.util.Identifier;
-import org.aussiebox.circuit_core.CircuitCoreConstants;
-import org.aussiebox.circuit_core.util.Observable;
-import org.jetbrains.annotations.Nullable;
+import org.aussiebox.circuit_core.pal.animation.AnimationData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class PALAnimation {
-    @Nullable public final Identifier id;
-    public Observable<Animation.LoopType> loopType;
+public class PALAnimation<D extends AnimationData> {
+    public final D data;
 
-    protected final List<Consumer<PALAnimation>> observers;
+    protected final List<Consumer<PALAnimation<D>>> observers;
 
-    public PALAnimation(@Nullable Identifier id, Animation.LoopType playMode) {
-        if (id == null) this.id = CircuitCoreConstants.NO_ANIMATION;
-        else this.id = id;
-
-        this.loopType = Observable.of(playMode);
-        this.loopType.observe(this::updateLoopType);
+    public PALAnimation(D data) {
+        this.data = data;
+        this.data.observe(animationData -> notifyObservers());
 
         this.observers = new ArrayList<>();
     }
 
-    public void observe(Consumer<PALAnimation> consumer) {
+    public void observe(Consumer<PALAnimation<D>> consumer) {
         this.observers.add(consumer);
     }
 
@@ -34,9 +26,5 @@ public class PALAnimation {
         for (var observer : this.observers) {
             observer.accept(this);
         }
-    }
-
-    private void updateLoopType(Animation.LoopType loopType) {
-        notifyObservers();
     }
 }

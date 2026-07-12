@@ -8,6 +8,7 @@
     "MinecraftClientMixin"
   ],
   "mixins": [
+    "AnimationControllerAccessor",
     "PlayerInventoryMixin",
     "ScreenHandlerMixin",
     "SlotMixin"

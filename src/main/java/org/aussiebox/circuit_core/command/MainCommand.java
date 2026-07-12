@@ -26,8 +26,13 @@ import org.aussiebox.circuit_core.CircuitCore;
 import org.aussiebox.circuit_core.CircuitCoreConstants;
 import org.aussiebox.circuit_core.network.SetAnimationS2CPayload;
 import org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload;
+import org.aussiebox.circuit_core.pal.ControllerRegistry;
+import org.aussiebox.circuit_core.pal.PALAnimation;
+import org.aussiebox.circuit_core.pal.PALController;
 import org.aussiebox.circuit_core.pal.PALHelper;
-import org.aussiebox.circuit_core.pal.animation.PALStackAnimation;
+import org.aussiebox.circuit_core.pal.animation.AnimationData;
+import org.aussiebox.circuit_core.pal.animation.StackAnimationData;
+import org.aussiebox.circuit_core.util.Hand;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -40,7 +45,21 @@ public class MainCommand {
                         .then(CommandManager.literal("animation")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .then(CommandManager.argument("controller", IdentifierArgumentType.identifier())
+                                                .suggests((context, builder) -> {
+                                                    ControllerRegistry.getControllerRegistry().forEach((id, controller) -> {
+                                                        builder.suggest(id.toString());
+                                                    });
+                                                    return builder.buildFuture();
+                                                })
                                                 .then(CommandManager.argument("animation", IdentifierArgumentType.identifier())
+                                                        .suggests((context, builder) -> {
+                                                            Identifier id = context.getArgument("controller", Identifier.class);
+                                                            PALController<AnimationData> controller = ControllerRegistry.getController(id, AnimationData.class);
+                                                            if (controller != null) controller.getAnimations().forEach((identifier, animation) -> {
+                                                                builder.suggest(identifier.toString());
+                                                            });
+                                                            return builder.buildFuture();
+                                                        })
                                                         .executes(MainCommand::setAnimation)
                                                 )
                                         )
@@ -49,7 +68,21 @@ public class MainCommand {
                         .then(CommandManager.literal("stack_animation")
                                 .then(CommandManager.argument("player", EntityArgumentType.player())
                                         .then(CommandManager.argument("controller", IdentifierArgumentType.identifier())
+                                                .suggests((context, builder) -> {
+                                                    ControllerRegistry.getControllerRegistry().forEach((id, controller) -> {
+                                                        if (controller.dataClass.isAssignableFrom(StackAnimationData.class)) builder.suggest(id.toString());
+                                                    });
+                                                    return builder.buildFuture();
+                                                })
                                                 .then(CommandManager.argument("animation", IdentifierArgumentType.identifier())
+                                                        .suggests((context, builder) -> {
+                                                            Identifier id = context.getArgument("controller", Identifier.class);
+                                                            PALController<StackAnimationData> controller = ControllerRegistry.getController(id, StackAnimationData.class);
+                                                            if (controller != null) controller.getAnimations().forEach((identifier, animation) -> {
+                                                                builder.suggest(identifier.toString());
+                                                            });
+                                                            return builder.buildFuture();
+                                                        })
                                                         .executes(MainCommand::setStackAnimation)
                                                 )
                                         )
@@ -92,22 +125,18 @@ public class MainCommand {
             Identifier controller = context.getArgument("controller", Identifier.class);
             Identifier animation = context.getArgument("animation", Identifier.class);
             Optional<ItemStack> stack = Optional.empty();
-            String hand = "AUTO";
+            Hand hand = Hand.AUTO;
             if (Objects.equals(animation.getPath(), "null") || Objects.equals(animation.getPath(), "none")) {
                 animation = CircuitCoreConstants.NULL_ANIMATION;
-                hand = "NULL";
+                hand = Hand.NONE;
             } else {
-                PALStackAnimation stackAnimation = PALHelper.getAnimation(PALStackAnimation.class, controller, animation);
+                PALAnimation<StackAnimationData> stackAnimation = PALHelper.getAnimation(StackAnimationData.class, controller, animation);
                 if (stackAnimation == null) {
                     context.getSource().sendError(Text.translatable("command.circuit_core.main.stack_animation.incorrect_type"));
                     return 1;
-                }
-                if (player.getMainHandStack().isOf(stackAnimation.expectedItem.get())) {
-                    stack = Optional.of(player.getMainHandStack());
-                    hand = "MAIN_HAND";
-                } else if (player.getOffHandStack().isOf(stackAnimation.expectedItem.get())) {
-                    stack = Optional.of(player.getOffHandStack());
-                    hand = "OFF_HAND";
+                } else {
+                    if (player.getMainHandStack().isOf(stackAnimation.data.expectedItem.get())) stack = Optional.of(player.getMainHandStack());
+                    else if (player.getOffHandStack().isOf(stackAnimation.data.expectedItem.get())) stack = Optional.of(player.getOffHandStack());
                 }
             }
 

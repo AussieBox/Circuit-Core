@@ -36,7 +36,7 @@
         "modmenu.discord": "https://discord.gg/HHvfVMFzBB"
       },
       "badges": [ "library" ],
-      "update_checker": true
+      "update_checker": false
     }
   }
 }

@@ -2,11 +2,15 @@ package org.aussiebox.circuit_core.client;
 
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.animation.PlayerRawAnimationBuilder;
+import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranim.api.PlayerAnimationFactory;
+import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.MinecraftClient;
@@ -14,23 +18,25 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import org.aussiebox.circuit_core.CircuitCore;
-import org.aussiebox.circuit_core.CircuitCoreConstants;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALControllerHandler;
+import org.aussiebox.circuit_core.pal.animation.StackAnimationData;
+import org.aussiebox.circuit_core.pal.handler.DefaultHandlerData;
+import org.aussiebox.circuit_core.pal.handler.HandlerData;
 import org.aussiebox.circuit_core.network.SetAnimationS2CPayload;
 import org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload;
+import org.aussiebox.circuit_core.pal.animation.AnimationData;
 import org.aussiebox.circuit_core.pal.ControllerRegistry;
 import org.aussiebox.circuit_core.pal.PALAnimation;
 import org.aussiebox.circuit_core.pal.PALController;
-import org.aussiebox.circuit_core.pal.animation.PALStackAnimation;
+import org.aussiebox.circuit_core.pal.handler.StackHandlerData;
+import org.aussiebox.circuit_core.util.Hand;
 
-import java.util.Objects;
+import java.util.Map;
 import java.util.UUID;
 
 //? >=1.21.10
@@ -40,7 +46,7 @@ public class CircuitCoreClient implements ClientModInitializer {
     /// Registry containing the {@link Identifier Identifier} of every registered {@link PALController PALController}.<br>
     /// Each {@link PALController PALController} also has a collection of {@link PALControllerHandler PALControllerHandlers} mapped to the {@link UUID UUID} of their parent {@link AbstractClientPlayerEntity AbstractClientPlayerEntities}.<br>
     /// This registry is only created when the {@link MinecraftClient MinecraftClient} starts, in order to give other mods time to register their controllers.
-    public static final Object2ObjectOpenHashMap<Identifier, Object2ObjectOpenHashMap<UUID, PALControllerHandler>> handlerRegistry = new Object2ObjectOpenHashMap<>();
+    public static final Object2ObjectOpenHashMap<Identifier, Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>>> handlerRegistry = new Object2ObjectOpenHashMap<>();
 
     @Override
     public void onInitializeClient() {
@@ -52,38 +58,24 @@ public class CircuitCoreClient implements ClientModInitializer {
 //        ConfigRegistry.registerConfig(new Config(CircuitCore.id("test-client")), Config.ConfigType.CLIENT);
 
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-            Object2ObjectOpenHashMap<Identifier, PALController> registry = ControllerRegistry.getControllerRegistry();
-            for (Identifier id : registry.keySet()) {
-                PALController palController = registry.get(id);
+            Object2ObjectOpenHashMap<Identifier, PALController<? extends AnimationData>> registry = ControllerRegistry.getControllerRegistry();
+            for (Map.Entry<Identifier, PALController<? extends AnimationData>> entry : registry.entrySet()) {
+                Identifier id = entry.getKey();
+                PALController<? extends AnimationData> palController = entry.getValue();
 
                 PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(id, palController.priority, player -> {
-                    Object2ObjectOpenHashMap<UUID, PALControllerHandler> handlers = handlerRegistry.getOrDefault(id, new Object2ObjectOpenHashMap<>());
-                    handlers.put(player.getUuid(), new PALControllerHandler(id, (AbstractClientPlayerEntity) player));
+                    Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>> handlers = handlerRegistry.getOrDefault(id, new Object2ObjectOpenHashMap<>());
+                    handlers.put(player.getUuid(), new PALControllerHandler<>(id, (AbstractClientPlayerEntity) player, palController.createHandlerData())); // Cast to AbstractClientPlayerEntity for 1.21.10+
                     handlerRegistry.put(id, handlers);
 
-                    return new PlayerAnimationController(player, (animationController, animationData, animationSetter) -> {
-                        PALController controller = ControllerRegistry.getController(id);
-                        if (controller == null) return PlayState.STOP;
-                        PALControllerHandler handler = handlerRegistry.get(id).get(player.getUuid());
-                        if (handler == null) return PlayState.STOP;
-
-                        if (Objects.equals(handler.animation, CircuitCoreConstants.NULL_ANIMATION) || Objects.equals(handler.animation, CircuitCoreConstants.NO_ANIMATION)) return PlayState.STOP;
-
-                        PALAnimation animation = controller.getAnimation(handler.animation);
-                        if (animation instanceof PALStackAnimation stackAnimation) {
-                            if (handler.stack != null && handler.stack.isOf(stackAnimation.expectedItem.get())) {
-                                if ((stackAnimation.leftHandedId == CircuitCoreConstants.NO_ANIMATION || stackAnimation.leftHandedId == CircuitCoreConstants.NULL_ANIMATION) && (stackAnimation.rightHandedId == CircuitCoreConstants.NO_ANIMATION || stackAnimation.rightHandedId == CircuitCoreConstants.NULL_ANIMATION))
-                                    return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(stackAnimation.id, animation.loopType.get()).build());
-
-                                if (player.getMainArm() == Arm.LEFT) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(handler.activeHand == Hand.MAIN_HAND ? stackAnimation.leftHandedId : stackAnimation.rightHandedId, animation.loopType.get()).build());
-                                else if (player.getMainArm() == Arm.RIGHT) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(handler.activeHand == Hand.MAIN_HAND ? stackAnimation.rightHandedId : stackAnimation.leftHandedId, animation.loopType.get()).build());
-                            } else return PlayState.STOP;
-                        } else if (animation != null) return animationSetter.setAnimation(PlayerRawAnimationBuilder.begin().then(animation.id, animation.loopType.get()).build());
-
-                        return PlayState.STOP;
-                    });
+                    return new PlayerAnimationController(player, (animationController, animationData, animationSetter) -> PlayState.CONTINUE);
                 });
             }
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            for (Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>> handlers : handlerRegistry.values())
+                for (PALControllerHandler<? extends HandlerData> handler : handlers.values()) handler.tick();
         });
 
         ClientPlayNetworking.registerGlobalReceiver(SetAnimationS2CPayload.ID, (payload, context) -> {
@@ -91,7 +83,11 @@ public class CircuitCoreClient implements ClientModInitializer {
                 ClientWorld world = context.client().world;
                 if (world != null) {
                     PlayerEntity targetPlayer = world.getPlayerByUuid(payload.playerUUID());
-                    if (targetPlayer instanceof ClientPlayerEntity target) PALClientHelper.setAnimation(target, payload.controller(), payload.animation());
+                    if (targetPlayer instanceof ClientPlayerEntity target) {
+                        PALControllerHandler<? extends HandlerData> handler = PALClientHelper.getHandler(target, payload.controller());
+                        PALAnimation<? extends AnimationData> animation = ControllerRegistry.getController(payload.controller()).getAnimation(payload.animation());
+                        if (handler != null && animation != null) handler.setAnimation(animation);
+                    }
                 }
             });
         });
@@ -102,20 +98,26 @@ public class CircuitCoreClient implements ClientModInitializer {
                 if (world != null) {
                     PlayerEntity targetPlayer = world.getPlayerByUuid(payload.playerUUID());
                     if (targetPlayer instanceof ClientPlayerEntity target) {
-
-                        Hand hand = Hand.MAIN_HAND;
-                        if (payload.hand().contains("NULL") || payload.stack().isEmpty()) {
-                            PALClientHelper.setAnimation(target, payload.controller(), null);
-                            PALClientHelper.setStack(target, payload.controller(), null);
-                            PALClientHelper.setActiveHand(target, payload.controller(), null);
-                            return;
-                        } else if (payload.hand().contains("AUTO")) {
-                            if (ItemStack.areItemsAndComponentsEqual(target.getOffHandStack(), payload.stack().get())) hand = Hand.OFF_HAND;
-                        } else hand = Hand.valueOf(payload.hand());
-                        
-                        PALClientHelper.setStack(target, payload.controller(), payload.stack().get());
-                        PALClientHelper.setActiveHand(target, payload.controller(), hand);
-                        PALClientHelper.setAnimation(target, payload.controller(), payload.animation());
+                        PALControllerHandler<? extends HandlerData> handler = PALClientHelper.getHandler(target, payload.controller());
+                        if (handler != null && handler.data instanceof StackHandlerData data) {
+                            PALController<StackAnimationData> controller = ControllerRegistry.getController(payload.controller(), StackAnimationData.class);
+                            if (controller == null || payload.hand() == Hand.NONE || payload.stack().isEmpty()) {
+                                data.stack.set(null);
+                                data.activeHand.set(Hand.NONE);
+                                data.setAnimation(null);
+                                return;
+                            }
+                            PALAnimation<StackAnimationData> animation = controller.getAnimation(payload.animation());
+                            if (animation == null) {
+                                data.stack.set(null);
+                                data.activeHand.set(Hand.NONE);
+                                data.setAnimation(null);
+                                return;
+                            }
+                            data.stack.set(payload.stack().get());
+                            data.activeHand.set(payload.hand());
+                            data.setAnimation(animation);
+                        }
                     }
                 }
             });

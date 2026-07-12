@@ -21,6 +21,13 @@ loom {
             sourceSet sourceSets.client
         }
     }
+    runs {
+        client {
+            client()
+            ideConfigGenerated = true
+            runDir "run"
+        }
+    }
 }
 
 repositories {

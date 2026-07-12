@@ -47,12 +47,12 @@ modImplementation "com.github.AussieBox:Circuit-Core:${project.minecraft_version
 ```
 **Then, define the mod's version in your ```gradle.properties```.**
 ```properties
-minecraft_version={YOUR GAME VERSION (should already be here)}
+minecraft_version={YOUR GAME VERSION (should already be in gradle.properties)}
 circuit_core_version={SEE TABLE BELOW}
 ```
 | Game Version | Latest Version | Supported |
 |:------------:|:--------------:|:---------:|
-|   1.21.11    |     0.2.1      |     ✅     |
-|   1.21.10    |     0.2.1      |     ✅     |
-|    1.21.8    |     0.2.1      |     ✅     |
-|    1.21.1    |     0.2.1      |     ✅     |
+|   1.21.11    |     0.3.0      |     ✅     |
+|   1.21.10    |     0.3.0      |     ✅     |
+|    1.21.8    |     0.3.0      |     ✅     |
+|    1.21.1    |     0.3.0      |     ✅     |

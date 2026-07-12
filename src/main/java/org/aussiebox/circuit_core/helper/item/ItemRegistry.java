@@ -5,9 +5,6 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -30,8 +27,6 @@ public class ItemRegistry {
     public static void bake() {
         for (ItemBuilder<?> builder : builders) {
             Item item = builder.build();
-            RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, builder.getItemId());
-            if (!Registries.ITEM.contains(key)) Registry.register(Registries.ITEM, builder.getItemId(), item);
 
             Identifier groupId = builder.getGroupId();
             if (groupId != null) {

@@ -1,11 +1,17 @@
 package org.aussiebox.circuit_core.client.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import org.aussiebox.circuit_core.CircuitCore;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,23 +20,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 //? >= 1.21.8
 //import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HandledScreen.class)
 public class HandledScreenMixin {
+    @Shadow
+    @Nullable
+    protected Slot focusedSlot;
+
     //? 1.21.1 {
     @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;isEnabled()Z"))
-    private boolean circuitCore$renderSlotWhenDisabled(boolean original) {
+    private boolean circuitCore$renderSlotWhenDisabled(boolean original, @Local Slot slot) {
         HandledScreen<?> screen = (HandledScreen<?>)(Object) this;
         if (screen instanceof AbstractInventoryScreen<?>) return true;
+        else if (slot.inventory instanceof PlayerInventory) return true;
         return original;
     }
     //? }
 
     //? >=1.21.8 {
     /*@ModifyExpressionValue(method = "drawSlots", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;isEnabled()Z"))
-    private boolean circuitCore$renderSlotWhenDisabled(boolean original) {
+    private boolean circuitCore$renderSlotWhenDisabled(boolean original, @Local Slot slot) {
         HandledScreen<?> screen = (HandledScreen<?>)(Object) this;
         if (screen instanceof RecipeBookScreen<?>) return true;
+        else if (slot.inventory instanceof PlayerInventory) return true;
         return original;
     }
     *///? }
@@ -38,6 +51,28 @@ public class HandledScreenMixin {
     @Inject(method = "onMouseClick(Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelClickWhenSlotDisabled(Slot slot, int slotId, int button, SlotActionType actionType, CallbackInfo ci) {
         if (slot == null) return;
-        if (PALClientHelper.shouldBeLocked(slot.getStack())) ci.cancel();
+        if (PALClientHelper.shouldBeLocked(slot.getStack(), slotId)) ci.cancel();
+    }
+
+    @Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
+    private void circuitCore$cancelHotbarKeyPressed(int keyCode, int scanCode, CallbackInfoReturnable<Boolean> cir) {
+        if (MinecraftClient.getInstance().player == null) return;
+
+        if (MinecraftClient.getInstance().options.swapHandsKey.matchesKey(keyCode, scanCode) && focusedSlot != null) {
+            if (PALClientHelper.shouldBeLocked(focusedSlot.getStack()) || PALClientHelper.shouldBeLocked(MinecraftClient.getInstance().player.getOffHandStack())) {
+                cir.setReturnValue(false);
+                cir.cancel();
+                return;
+            }
+        }
+        for (int i = 0; i < 9; i++) {
+            if (MinecraftClient.getInstance().options.hotbarKeys[i].matchesKey(keyCode, scanCode)) {
+                if (PALClientHelper.shouldBeLocked(i)) {
+                    cir.setReturnValue(false);
+                    cir.cancel();
+                    return;
+                }
+            }
+        }
     }
 }
