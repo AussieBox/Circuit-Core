@@ -57,7 +57,7 @@ public class ItemBuilder<I extends Item> {
 
         RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, itemId);
         //? >= 1.21.8
-        //settings.registryKey(key);
+        settings.registryKey(key);
 
         I item = factory.apply(settings);
         if (!Registries.ITEM.contains(key)) builtItem = Registry.register(Registries.ITEM, itemId, item);

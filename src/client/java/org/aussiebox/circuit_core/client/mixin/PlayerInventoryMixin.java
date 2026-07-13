@@ -68,18 +68,18 @@ public abstract class PlayerInventoryMixin {
     }
 
     //? 1.21.1 {
-    @Inject(method = "scrollInHotbar", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "scrollInHotbar", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelScroll(double scrollAmount, CallbackInfo ci) {
         if (PALClientHelper.shouldBeLocked(getStack(selectedSlot), selectedSlot)) ci.cancel();
         else if (PALClientHelper.hotbarLocked()) ci.cancel();
     }
-    //? }
+    *///? }
 
     //? >=1.21.8 {
-    /*@Inject(method = "setSelectedSlot", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "setSelectedSlot", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelScroll(int slot, CallbackInfo ci) {
         if (PALClientHelper.shouldBeLocked(getStack(selectedSlot), selectedSlot)) ci.cancel();
         else if (PALClientHelper.hotbarLocked()) ci.cancel();
     }
-    *///? }
+    //? }
 }

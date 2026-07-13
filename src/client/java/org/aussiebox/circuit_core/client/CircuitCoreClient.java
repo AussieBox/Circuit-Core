@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.resource.ResourceType;
@@ -24,6 +25,7 @@ import net.minecraft.util.Identifier;
 import org.aussiebox.circuit_core.CircuitCore;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALControllerHandler;
+import org.aussiebox.circuit_core.client.pal.PALHandlerHolder;
 import org.aussiebox.circuit_core.pal.animation.StackAnimationData;
 import org.aussiebox.circuit_core.pal.handler.DefaultHandlerData;
 import org.aussiebox.circuit_core.pal.handler.HandlerData;
@@ -36,11 +38,13 @@ import org.aussiebox.circuit_core.pal.PALController;
 import org.aussiebox.circuit_core.pal.handler.StackHandlerData;
 import org.aussiebox.circuit_core.util.Hand;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 //? >=1.21.10
-//import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 public class CircuitCoreClient implements ClientModInitializer {
     /// Registry containing the {@link Identifier Identifier} of every registered {@link PALController PALController}.<br>
@@ -51,9 +55,9 @@ public class CircuitCoreClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         //? <1.21.10
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SecretSillyDetector.INSTANCE);
+        //ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(SecretSillyDetector.INSTANCE);
         //? >=1.21.10
-        //ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(SecretSillyDetector.INSTANCE.getFabricId(), SecretSillyDetector.INSTANCE);
+        ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(SecretSillyDetector.INSTANCE.getFabricId(), SecretSillyDetector.INSTANCE);
 
 //        ConfigRegistry.registerConfig(new Config(CircuitCore.id("test-client")), Config.ConfigType.CLIENT);
 
@@ -64,9 +68,8 @@ public class CircuitCoreClient implements ClientModInitializer {
                 PALController<? extends AnimationData> palController = entry.getValue();
 
                 PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(id, palController.priority, player -> {
-                    Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>> handlers = handlerRegistry.getOrDefault(id, new Object2ObjectOpenHashMap<>());
-                    handlers.put(player.getUuid(), new PALControllerHandler<>(id, (AbstractClientPlayerEntity) player, palController.createHandlerData())); // Cast to AbstractClientPlayerEntity for 1.21.10+
-                    handlerRegistry.put(id, handlers);
+                    if (player instanceof AbstractClientPlayerEntity playerFr && player instanceof PALHandlerHolder holder)
+                        holder.circuitCore$setHandler(id, new PALControllerHandler<>(id, playerFr, palController.createHandlerData()));
 
                     return new PlayerAnimationController(player, (animationController, animationData, animationSetter) -> PlayState.CONTINUE);
                 });

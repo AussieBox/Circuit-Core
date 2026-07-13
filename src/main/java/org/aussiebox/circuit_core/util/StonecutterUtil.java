@@ -8,11 +8,11 @@ public class StonecutterUtil {
     /// Used instead of {@link ServerPlayerEntity#getServer() ServerPlayerEntity.getServer()} for Stonecutter support.
     public static MinecraftServer getServer(ServerPlayerEntity player) {
         //? 1.21.1
-        return player.getServer();
+        //return player.getServer();
         //? 1.21.8
         //return player.getWorld().getServer();
         //? 1.21.10 || 1.21.11
-        //return player.getEntityWorld().getServer();
+        return player.getEntityWorld().getServer();
     }
 
 }

@@ -16,6 +16,7 @@ import org.aussiebox.circuit_core.util.Hand;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class PALClientHelper {
@@ -30,7 +31,7 @@ public class PALClientHelper {
         }
         PALControllerHandler<? extends HandlerData> handler = handlers.getOrDefault(player.getUuid(), null);
         if (handler == null) {
-            CircuitCore.LOGGER.error("PAL Handler for player {} was not found", player.getNameForScoreboard());
+            CircuitCore.LOGGER.error("(getHandler) PAL Handler for player {} was not found", player.getNameForScoreboard());
             return null;
         }
         return handler;
@@ -45,7 +46,7 @@ public class PALClientHelper {
         }
         PALControllerHandler<? extends HandlerData> handler = handlers.getOrDefault(player.getUuid(), null);
         if (handler == null) {
-            CircuitCore.LOGGER.error("PAL Handler for player {} was not found", player.getNameForScoreboard());
+            CircuitCore.LOGGER.error("(getHandler TYPED) PAL Handler for player {} was not found", player.getNameForScoreboard());
             return null;
         }
         if (dataClass.isInstance(handler.data)) return (PALControllerHandler<D>) handler;
@@ -55,22 +56,14 @@ public class PALClientHelper {
         }
     }
 
-    /// Updates the given {@link PALControllerHandler PALControllerHandler} in the handler registry.<br>
-    /// You shouldn't need to call this.
-    public static void setHandler(PALControllerHandler<? extends HandlerData> handler) {
-        Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>> handlers = CircuitCoreClient.handlerRegistry.getOrDefault(handler.controllerId, new Object2ObjectOpenHashMap<>());
-        handlers.put(handler.player.getUuid(), handler);
-        CircuitCoreClient.handlerRegistry.put(handler.controllerId, handlers);
-    }
-
     public static List<PALControllerHandler<? extends HandlerData>> getAllHandlers(AbstractClientPlayerEntity player) {
         List<PALControllerHandler<? extends HandlerData>> returnedHandlers = new ArrayList<>();
 
-        for (Identifier controller : CircuitCoreClient.handlerRegistry.keySet()) {
-            Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>> handlers = CircuitCoreClient.handlerRegistry.get(controller);
+        for (Map.Entry<Identifier, Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>>> entry : CircuitCoreClient.handlerRegistry.entrySet()) {
+            Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>> handlers = entry.getValue();
             PALControllerHandler<? extends HandlerData> handler = handlers.getOrDefault(player.getUuid(), null);
             if (handler == null) {
-                CircuitCore.LOGGER.error("PAL Handler for player {} was not found", player.getNameForScoreboard());
+                CircuitCore.LOGGER.error("(getAllHandlers) PAL Handler for player {} was not found", player.getNameForScoreboard());
                 continue;
             }
             returnedHandlers.add(handler);
@@ -150,9 +143,9 @@ public class PALClientHelper {
             StackAnimationData.Behavior behavior = animation.data.behavior.get();
 
             //? 1.21.1
-            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
+            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
             //? >=1.21.8
-            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
+            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
             Hand hand = data.activeHand.get();
             if (hand == Hand.AUTO) {
                 if (MinecraftClient.getInstance().player.getStackInHand(net.minecraft.util.Hand.MAIN_HAND).isOf(animation.data.expectedItem.get())) hand = Hand.MAIN_HAND;
@@ -192,9 +185,9 @@ public class PALClientHelper {
             StackAnimationData.Behavior behavior = animation.data.behavior.get();
 
             //? 1.21.1
-            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
+            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
             //? >=1.21.8
-            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
+            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
             if (data.stack.get() != null) {
                 Hand hand = data.activeHand.get();
                 if (hand == Hand.AUTO) {

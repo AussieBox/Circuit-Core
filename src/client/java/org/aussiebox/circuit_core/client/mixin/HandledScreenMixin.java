@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 //? >=1.21.10
-//import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
@@ -18,9 +18,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 //? 1.21.1
-import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
+//import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
 //? >= 1.21.8
-//import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
+import net.minecraft.client.gui.screen.ingame.RecipeBookScreen;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(HandledScreen.class)
@@ -30,24 +30,24 @@ public class HandledScreenMixin {
     protected Slot focusedSlot;
 
     //? 1.21.1 {
-    @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;isEnabled()Z"))
+    /*@ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;isEnabled()Z"))
     private boolean circuitCore$renderSlotWhenDisabled(boolean original, @Local Slot slot) {
         HandledScreen<?> screen = (HandledScreen<?>)(Object) this;
         if (screen instanceof AbstractInventoryScreen<?>) return true;
         else if (slot.inventory instanceof PlayerInventory) return true;
         return original;
     }
-    //? }
+    *///? }
 
     //? >=1.21.8 {
-    /*@ModifyExpressionValue(method = "drawSlots", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;isEnabled()Z"))
+    @ModifyExpressionValue(method = "drawSlots", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;isEnabled()Z"))
     private boolean circuitCore$renderSlotWhenDisabled(boolean original, @Local Slot slot) {
         HandledScreen<?> screen = (HandledScreen<?>)(Object) this;
         if (screen instanceof RecipeBookScreen<?>) return true;
         else if (slot.inventory instanceof PlayerInventory) return true;
         return original;
     }
-    *///? }
+    //? }
 
     @Inject(method = "onMouseClick(Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelClickWhenSlotDisabled(Slot slot, int slotId, int button, SlotActionType actionType, CallbackInfo ci) {
@@ -56,7 +56,7 @@ public class HandledScreenMixin {
     }
 
     //? <=1.21.8 {
-    @Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
+    /*@Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelHotbarKeyPressed(int keyCode, int scanCode, CallbackInfoReturnable<Boolean> cir) {
         if (MinecraftClient.getInstance().player == null) return;
 
@@ -77,10 +77,10 @@ public class HandledScreenMixin {
             }
         }
     }
-    //? }
+    *///? }
 
     //? >=1.21.10 {
-    /*@Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "handleHotbarKeyPressed", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelHotbarKeyPressed(KeyInput keyInput, CallbackInfoReturnable<Boolean> cir) {
         if (MinecraftClient.getInstance().player == null) return;
 
@@ -101,5 +101,5 @@ public class HandledScreenMixin {
             }
         }
     }
-    *///? }
+    //? }
 }

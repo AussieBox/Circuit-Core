@@ -21,18 +21,10 @@ public abstract class ScreenHandlerMixin {
     @Final
     public DefaultedList<Slot> slots;
 
-    @Shadow
-    private ItemStack cursorStack;
-
     @Inject(method = "onSlotClick", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
         if (slotIndex < 0) return;
         Slot slot = slots.get(slotIndex);
         if (PALClientHelper.shouldBeLocked(slot.getStack(), slotIndex)) ci.cancel();
-    }
-
-    @Inject(method = "setCursorStack", at = @At("HEAD"), cancellable = true)
-    private void circuitCore$cancelSetCursorStack(ItemStack stack, CallbackInfo ci) {
-
     }
 }

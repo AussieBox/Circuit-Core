@@ -6,6 +6,7 @@ import com.zigythebird.playeranim.api.PlayerAnimationAccess;
 import com.zigythebird.playeranimcore.animation.AnimationController;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import org.aussiebox.circuit_core.client.mixin.AnimationControllerAccessor;

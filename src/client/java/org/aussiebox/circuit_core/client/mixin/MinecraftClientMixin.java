@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(MinecraftClient.class)
 public class MinecraftClientMixin {
     //? 1.21.1 {
-    @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;wasPressed()Z", ordinal = 2))
+    /*@ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;wasPressed()Z", ordinal = 2))
     private boolean circuitCore$cancelHotbarKeys(boolean original, @Local int i) {
         if (MinecraftClient.getInstance().player == null) return original;
         else if (PALClientHelper.hotbarLocked()) return false;
         return original;
     }
-    //? }
+    *///? }
 
     @ModifyExpressionValue(method = "handleInputEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/KeyBinding;wasPressed()Z", ordinal = 6))
     private boolean circuitCore$cancelSwapHandsKey(boolean original) {

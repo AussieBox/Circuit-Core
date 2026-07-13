@@ -10,6 +10,7 @@
   "mixins": [
     "AnimationControllerAccessor",
     "PlayerInventoryMixin",
+    "AbstractClientPlayerEntityMixin",
     "ScreenHandlerMixin",
     "SlotMixin"
   ],
