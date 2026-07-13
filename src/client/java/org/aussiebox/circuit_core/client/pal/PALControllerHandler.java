@@ -19,6 +19,8 @@ import org.aussiebox.circuit_core.pal.PALAnimation;
 import org.aussiebox.circuit_core.pal.handler.StackHandlerData;
 import org.aussiebox.circuit_core.util.Hand;
 
+import java.util.function.Function;
+
 /// Handles the animation playing in a {@link PALController PALController} for a specific player.<br>
 /// To configure animations (e.g. loop mode), modify the {@link PALAnimation PALAnimation}.
 /// @see PALController
@@ -51,7 +53,18 @@ public class PALControllerHandler<D extends HandlerData> {
                     palController.stop();
 
                     handlerData.setAnimation(null); // Just to make sure
-                } else ((AnimationControllerAccessor) palController).circuitCore$setAnimation(PlayerRawAnimationBuilder.begin().then(animation.data.id, animation.data.loopType.get()).build());
+                } else {
+                    ((AnimationControllerAccessor) palController).circuitCore$setAnimation(PlayerRawAnimationBuilder.begin().then(animation.data.id, animation.data.loopType.get()).build());
+                    Function<AbstractClientPlayerEntity, Boolean> onTick = PALEvents.getOnTick(animation.data.id);
+                    if (onTick != null) {
+                        if (!onTick.apply(player)) {
+                            palController.forceAnimationReset();
+                            palController.stop();
+
+                            handlerData.setAnimation(null);
+                        }
+                    }
+                }
             }
             case StackHandlerData handlerData -> {
                 PALAnimation<StackAnimationData> animation = handlerData.getAnimation();
@@ -97,6 +110,18 @@ public class PALControllerHandler<D extends HandlerData> {
 
                 if (player.getMainArm() == Arm.LEFT) ((AnimationControllerAccessor) palController).circuitCore$setAnimation(PlayerRawAnimationBuilder.begin().then(vanillaHand == net.minecraft.util.Hand.MAIN_HAND ? animation.data.leftHandedId : animation.data.rightHandedId, animation.data.loopType.get()).build());
                 else if (player.getMainArm() == Arm.RIGHT) ((AnimationControllerAccessor) palController).circuitCore$setAnimation(PlayerRawAnimationBuilder.begin().then(vanillaHand == net.minecraft.util.Hand.MAIN_HAND ? animation.data.rightHandedId : animation.data.leftHandedId, animation.data.loopType.get()).build());
+
+                Function<AbstractClientPlayerEntity, Boolean> onTick = PALEvents.getOnTick(animation.data.id);
+                if (onTick != null) {
+                    if (!onTick.apply(player)) {
+                        palController.forceAnimationReset();
+                        palController.stop();
+
+                        handlerData.setAnimation(null);
+                        handlerData.stack.set(null);
+                        handlerData.activeHand.set(Hand.NONE);
+                    }
+                }
             }
             case null, default -> {}
         }
