@@ -4,13 +4,13 @@
   "package": "org.aussiebox.circuit_core.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "ClientPlayNetworkHandlerMixin",
     "HandledScreenMixin",
     "MinecraftClientMixin"
   ],
   "mixins": [
     "AnimationControllerAccessor",
     "PlayerInventoryMixin",
-    "AbstractClientPlayerEntityMixin",
     "ScreenHandlerMixin",
     "SlotMixin"
   ],

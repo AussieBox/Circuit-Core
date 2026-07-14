@@ -143,9 +143,9 @@ public class PALClientHelper {
             StackAnimationData.Behavior behavior = animation.data.behavior.get();
 
             //? 1.21.1
-            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
+            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
             //? >=1.21.8
-            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
+            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
             Hand hand = data.activeHand.get();
             if (hand == Hand.AUTO) {
                 if (MinecraftClient.getInstance().player.getStackInHand(net.minecraft.util.Hand.MAIN_HAND).isOf(animation.data.expectedItem.get())) hand = Hand.MAIN_HAND;
@@ -185,9 +185,9 @@ public class PALClientHelper {
             StackAnimationData.Behavior behavior = animation.data.behavior.get();
 
             //? 1.21.1
-            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
+            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
             //? >=1.21.8
-            int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
+            //int hotbarSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
             if (data.stack.get() != null) {
                 Hand hand = data.activeHand.get();
                 if (hand == Hand.AUTO) {
