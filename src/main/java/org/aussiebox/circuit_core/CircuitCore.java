@@ -13,6 +13,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.aussiebox.circuit_core.command.MainCommand;
 import org.aussiebox.circuit_core.helper.item.ItemRegistry;
+import org.aussiebox.circuit_core.helper.item.ItemSupplier;
 import org.aussiebox.circuit_core.helper.itemgroup.ItemGroupSupplier;
 import org.aussiebox.circuit_core.network.SetAnimationS2CPayload;
 import org.aussiebox.circuit_core.network.SetStackAnimationS2CPayload;
@@ -50,6 +51,11 @@ public class CircuitCore implements ModInitializer {
     public void onInitialize() {
         Object2ObjectOpenHashMap<Identifier, ItemGroup> groupIDs = new Object2ObjectOpenHashMap<>();
 
+        FabricLoader.getInstance().getEntrypointContainers("circ_items", ItemSupplier.class)
+                .forEach(container -> {
+                    ItemSupplier supplier = container.getEntrypoint();
+                    supplier.init();
+                });
         ItemRegistry.bake();
         FabricLoader.getInstance().getEntrypointContainers("circ_item_groups", ItemGroupSupplier.class)
                 .forEach(container -> {

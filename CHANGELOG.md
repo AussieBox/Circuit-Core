@@ -1,5 +1,3 @@
 ## Additions
-- Added ```PALEvents``` and tick function support for animations (set the function in ```PALEvents```)
-## Changes
-- Fixed animations not being registered to players for 1.21.10 and 1.21.11
-  - Possibly the worst issue I've had to fix, ever.
+- Added ```ItemSupplier```, which is initialised before ```ItemRegistry``` is baked.
+  - To ensure items are registered, put them in a class extending ```ItemSupplier```, and add it to the ```circ-items``` entrypoint.
