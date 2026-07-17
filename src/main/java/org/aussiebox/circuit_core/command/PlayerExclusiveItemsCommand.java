@@ -7,7 +7,7 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.command.argument.RegistryKeyArgumentType;
-//? >=1.21.10 {
+//? 1.21.11 {
 /*import net.minecraft.command.DefaultPermissions;
 import net.minecraft.command.permission.PermissionCheck;
 *///? }
@@ -29,15 +29,15 @@ import org.aussiebox.circuit_core.util.ExclusiveItemHolder;
 import java.util.Optional;
 
 public class PlayerExclusiveItemsCommand {
-    //? >=1.21.10
+    //? 1.21.11
     //public static final PermissionCheck PERMISSION_CHECK = new PermissionCheck.Require(DefaultPermissions.GAMEMASTERS);
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
                 CommandManager.literal("exclusive_item")
-                        //? >=1.21.10
+                        //? 1.21.11
                         //.requires(CommandManager.requirePermissionLevel(PERMISSION_CHECK))
-                        //? 1.21.8
+                        //? 1.21.8 && 1.21.10
                         //.requires(CommandManager.requirePermissionLevel(2))
                         //? 1.21.1
                         .requires(source -> source.hasPermissionLevel(2))
