@@ -16,7 +16,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Uuids;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
-import net.minecraft.world.PersistentStateType;import org.aussiebox.circuit_core.helper.PlayerExclusiveItemHelper;
+//? >= 1.21.8
+//import net.minecraft.world.PersistentStateType;
+import org.aussiebox.circuit_core.helper.PlayerExclusiveItemHelper;
 
 import java.util.*;
 import java.util.stream.Collectors;
