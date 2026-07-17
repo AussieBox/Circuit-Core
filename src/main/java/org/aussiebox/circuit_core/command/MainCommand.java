@@ -38,7 +38,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class MainCommand {
-
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
         dispatcher.register(
                 CommandManager.literal(CircuitCore.MOD_ID)

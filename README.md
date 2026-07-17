@@ -20,6 +20,10 @@
 - Item, Block, and ItemGroup registry util
     - Also adds registered items to ItemGroups automatically!
 - Advancement granting/revoking util
+- Player-exclusive item capabilities
+  - Make an item player-exclusive with ```PlayerExclusiveItemHelper.makeExclusive()```.
+  - From there, world operators can allow specific players to use items individually.
+    - You can also set a default list of players during registration.
 - Devenv-exclusive utilities:
   - ```/circuit_core command```
     - Animation setting (for PAL wrapper)
@@ -52,7 +56,7 @@ circuit_core_version={SEE TABLE BELOW}
 ```
 | Game Version | Latest Version | Supported |
 |:------------:|:--------------:|:---------:|
-|   1.21.11    |     0.3.2      |     ✅     |
-|   1.21.10    |     0.3.2      |     ✅     |
-|    1.21.8    |     0.3.2      |     ✅     |
-|    1.21.1    |     0.3.2      |     ✅     |
+|   1.21.11    |     0.4.0      |     ✅     |
+|   1.21.10    |     0.4.0      |     ✅     |
+|    1.21.8    |     0.4.0      |     ✅     |
+|    1.21.1    |     0.4.0      |     ✅     |

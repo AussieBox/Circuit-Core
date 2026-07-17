@@ -16,11 +16,15 @@ import net.minecraft.client.world.ClientWorld;
 //? >=1.21.10
 //import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import org.aussiebox.circuit_core.CircuitCore;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALControllerHandler;
 import org.aussiebox.circuit_core.client.pal.PendingControllerHandler;
+import org.aussiebox.circuit_core.network.UpdateExclusiveItemsS2CPayload;
 import org.aussiebox.circuit_core.pal.animation.StackAnimationData;
 import org.aussiebox.circuit_core.pal.handler.HandlerData;
 import org.aussiebox.circuit_core.network.SetAnimationS2CPayload;
@@ -32,6 +36,8 @@ import org.aussiebox.circuit_core.pal.PALController;
 import org.aussiebox.circuit_core.pal.handler.StackHandlerData;
 import org.aussiebox.circuit_core.util.Hand;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,6 +49,8 @@ public class CircuitCoreClient implements ClientModInitializer {
     /// Each {@link PALController PALController} also has a collection of {@link PALControllerHandler PALControllerHandlers} mapped to the {@link UUID UUID} of their parent {@link AbstractClientPlayerEntity AbstractClientPlayerEntities}.<br>
     /// This registry is only created when the {@link MinecraftClient MinecraftClient} starts, in order to give other mods time to register their controllers.
     public static final Object2ObjectOpenHashMap<Identifier, Object2ObjectOpenHashMap<UUID, PALControllerHandler<? extends HandlerData>>> handlerRegistry = new Object2ObjectOpenHashMap<>();
+
+    public static List<RegistryKey<Item>> allowedItems = new ArrayList<>();
 
     //? >=1.21.10
     //public static final Object2ObjectOpenHashMap<Integer, Object2ObjectOpenHashMap<Identifier, PendingControllerHandler<? extends HandlerData>>> pendingHandlers = new Object2ObjectOpenHashMap<>();
@@ -127,6 +135,11 @@ public class CircuitCoreClient implements ClientModInitializer {
                     }
                 }
             });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(UpdateExclusiveItemsS2CPayload.ID, (payload, context) -> {
+            CircuitCoreClient.allowedItems = new ArrayList<>(payload.items());
+            CircuitCore.LOGGER.info(String.valueOf(allowedItems));
         });
     }
 }

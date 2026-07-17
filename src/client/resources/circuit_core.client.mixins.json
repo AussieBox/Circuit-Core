@@ -10,6 +10,8 @@
   ],
   "mixins": [
     "AnimationControllerAccessor",
+    "ItemMixin",
+    "ItemStackMixin",
     "PlayerInventoryMixin",
     "ScreenHandlerMixin",
     "SlotMixin"

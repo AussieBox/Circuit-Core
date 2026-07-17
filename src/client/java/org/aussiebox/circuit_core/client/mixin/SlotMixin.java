@@ -4,7 +4,9 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import org.aussiebox.circuit_core.CircuitCore;
+import org.aussiebox.circuit_core.client.helper.PlayerExclusiveItemClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
+import org.aussiebox.circuit_core.util.ExclusiveItemHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,9 +18,13 @@ public abstract class SlotMixin {
     @Shadow
     public abstract int getIndex();
 
+    @Shadow
+    public abstract ItemStack getStack();
+
     @ModifyReturnValue(method = "isEnabled", at = @At("RETURN"))
     private boolean circuitCore$disableSlot(boolean original) {
         if (PALClientHelper.shouldBeLocked(getIndex())) return false;
+        else if (!PlayerExclusiveItemClientHelper.playerCanGet(getStack().getItem())) return false;
         else return original;
     }
 

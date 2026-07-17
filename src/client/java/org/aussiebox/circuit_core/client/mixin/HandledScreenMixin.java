@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import org.aussiebox.circuit_core.client.helper.PlayerExclusiveItemClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -53,6 +54,7 @@ public class HandledScreenMixin {
     private void circuitCore$cancelClickWhenSlotDisabled(Slot slot, int slotId, int button, SlotActionType actionType, CallbackInfo ci) {
         if (slot == null) return;
         if (PALClientHelper.shouldBeLocked(slot.getStack(), slotId)) ci.cancel();
+        else if (!PlayerExclusiveItemClientHelper.playerCanGet(slot.getStack().getItem())) ci.cancel();
     }
 
     //? <=1.21.8 {

@@ -2,9 +2,17 @@ package org.aussiebox.circuit_core.client.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import org.aussiebox.circuit_core.CircuitCore;
+import org.aussiebox.circuit_core.client.CircuitCoreClient;
+import org.aussiebox.circuit_core.client.helper.PlayerExclusiveItemClientHelper;
 import org.aussiebox.circuit_core.client.pal.PALClientHelper;
+import org.aussiebox.circuit_core.helper.PlayerExclusiveItemHelper;
+import org.aussiebox.circuit_core.util.ExclusiveItemHolder;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +26,10 @@ public abstract class PlayerInventoryMixin {
     @Shadow public abstract ItemStack getStack(int slot);
     @Shadow public abstract int getEmptySlot();
     @Shadow public int selectedSlot;
+
+    @Shadow
+    @Final
+    public PlayerEntity player;
 
     @Inject(method = "removeStack(II)Lnet/minecraft/item/ItemStack;", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelRemoveStack(int slot, int amount, CallbackInfoReturnable<ItemStack> cir) {
@@ -44,6 +56,7 @@ public abstract class PlayerInventoryMixin {
     private void circuitCore$cancelSwapSlot(int slot, CallbackInfo ci) {
         if (PALClientHelper.hotbarLocked()) ci.cancel();
         else if (PALClientHelper.shouldBeLocked(getStack(slot), slot)) ci.cancel();
+        else if (!PlayerExclusiveItemClientHelper.playerCanGet(getStack(slot).getItem())) ci.cancel();
     }
 
     @ModifyExpressionValue(method = "getEmptySlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
@@ -55,7 +68,7 @@ public abstract class PlayerInventoryMixin {
     @Inject(method = "insertStack(ILnet/minecraft/item/ItemStack;)Z", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelInsertStack(int slot, ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
         if (slot == -1 || PALClientHelper.shouldBeLocked(slot)) slot = getEmptySlot();
-        if (slot == -1 || PALClientHelper.shouldBeLocked(getStack(slot), slot)) {
+        if (slot == -1 || PALClientHelper.shouldBeLocked(getStack(slot), slot) || !PlayerExclusiveItemClientHelper.playerCanGet(stack.getItem())) {
             cir.setReturnValue(false);
             cir.cancel();
         }
@@ -65,6 +78,7 @@ public abstract class PlayerInventoryMixin {
     private void circuitCore$cancelSetStack(int slot, ItemStack stack, CallbackInfo ci) {
         if (PALClientHelper.shouldBeLocked(getStack(slot), slot)) ci.cancel();
         else if (PALClientHelper.shouldBeLocked(stack)) ci.cancel();
+        else if (!PlayerExclusiveItemClientHelper.playerCanGet(stack.getItem())) ci.cancel();
     }
 
     //? 1.21.1 {

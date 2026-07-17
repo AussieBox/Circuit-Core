@@ -1,3 +1,4 @@
 {
-  "command.circuit_core.main.stack_animation.incorrect_type": "Animation is not a StackAnimation"
+  "command.circuit_core.main.stack_animation.incorrect_type": "Animation is not a StackAnimation",
+  "command.circuit_core.exclusive_item.add.invalid_item": "Item not found"
 }
