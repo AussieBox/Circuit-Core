@@ -36,6 +36,7 @@ public class HandledScreenMixin {
         HandledScreen<?> screen = (HandledScreen<?>)(Object) this;
         if (screen instanceof AbstractInventoryScreen<?>) return true;
         else if (slot.inventory instanceof PlayerInventory) return true;
+        else if (PlayerExclusiveItemClientHelper.playerCanGet(slot.getStack().getItem())) return true;
         return original;
     }
     //? }
@@ -46,6 +47,7 @@ public class HandledScreenMixin {
         HandledScreen<?> screen = (HandledScreen<?>)(Object) this;
         if (screen instanceof RecipeBookScreen<?>) return true;
         else if (slot.inventory instanceof PlayerInventory) return true;
+        else if (PlayerExclusiveItemClientHelper.playerCanGet(slot.getStack().getItem())) return true;
         return original;
     }
     *///? }

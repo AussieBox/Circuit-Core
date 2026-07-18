@@ -139,7 +139,6 @@ public class CircuitCoreClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(UpdateExclusiveItemsS2CPayload.ID, (payload, context) -> {
             CircuitCoreClient.allowedItems = new ArrayList<>(payload.items());
-            CircuitCore.LOGGER.info(String.valueOf(allowedItems));
         });
     }
 }

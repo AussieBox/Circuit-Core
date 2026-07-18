@@ -1,4 +1,6 @@
 {
   "command.circuit_core.main.stack_animation.incorrect_type": "Animation is not a StackAnimation",
-  "command.circuit_core.exclusive_item.add.invalid_item": "Item not found"
+  "command.circuit_core.exclusive_item.add.invalid_item": "Item not found",
+  "tooltip.circuit_core.item_disallowed": "You cannot use this item.",
+  "tooltip.circuit_core.item_allowed": "You can use this item."
 }

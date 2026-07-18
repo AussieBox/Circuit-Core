@@ -1,17 +1,19 @@
 package org.aussiebox.circuit_core.client.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ClickType;
-import net.minecraft.util.Hand;
+import net.minecraft.text.Text;
+import net.minecraft.util.*;
 //? 1.21.1
-import net.minecraft.util.TypedActionResult;
+import net.minecraft.world.World;
 import net.minecraft.world.World;
 import org.aussiebox.circuit_core.client.helper.PlayerExclusiveItemClientHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +21,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mixin(ItemStack.class)
 public abstract class ItemStackMixin {
@@ -74,5 +79,16 @@ public abstract class ItemStackMixin {
             cir.setReturnValue(false);
             cir.cancel();
         }
+    }
+
+    @ModifyReturnValue(method = "getTooltip", at = @At("RETURN"))
+    private List<Text> circuitCore$appendDisabledTooltipLine(List<Text> original, @Local(argsOnly = true) TooltipType type) {
+        if (type.isAdvanced()) {
+            List<Text> list = new ArrayList<>(original);
+            if (PlayerExclusiveItemClientHelper.playerCanGet(((ItemStack) (Object) this).getItem())) list.add(Text.translatable("tooltip.circuit_core.item_disallowed").withColor(Colors.LIGHT_RED));
+            else list.add(Text.translatable("tooltip.circuit_core.item_allowed").withColor(Colors.GRAY));
+            return list;
+        }
+        return original;
     }
 }

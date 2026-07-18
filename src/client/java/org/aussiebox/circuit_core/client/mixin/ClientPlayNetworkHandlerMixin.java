@@ -40,8 +40,6 @@ public class ClientPlayNetworkHandlerMixin {
                 CircuitCoreClient.handlerRegistry.put(handler.controllerId, handlers);
             }
         }
-
-        CircuitCore.LOGGER.info(String.valueOf(CircuitCoreClient.handlerRegistry));
     }
     *///? }
 }

@@ -59,7 +59,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Exclusiv
 
     @Override
     public boolean circuitCore$itemAllowed(Item item) {
-        CircuitCore.LOGGER.info(String.valueOf(allowedItems));
         Optional<RegistryKey<Item>> key = Registries.ITEM.getKey(item);
         if (!PlayerExclusiveItemHelper.canBeExclusive(item)) return true;
         return key.isPresent() && allowedItems.contains(key.get());
@@ -79,7 +78,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Exclusiv
 
     @Override
     public boolean circuitCore$itemAllowed(RegistryKey<Item> item) {
-        CircuitCore.LOGGER.info(String.valueOf(allowedItems));
         if (!PlayerExclusiveItemHelper.canBeExclusive(item)) return true;
         return allowedItems.contains(item);
     }
