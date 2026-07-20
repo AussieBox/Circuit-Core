@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerInventory.class)
 public abstract class PlayerInventoryMixin {
-    @Shadow public abstract int getSwappableHotbarSlot();
     @Shadow public abstract ItemStack getStack(int slot);
     @Shadow public abstract int getEmptySlot();
     @Shadow public int selectedSlot;
@@ -33,6 +32,7 @@ public abstract class PlayerInventoryMixin {
 
     @Inject(method = "removeStack(II)Lnet/minecraft/item/ItemStack;", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelRemoveStack(int slot, int amount, CallbackInfoReturnable<ItemStack> cir) {
+        if (StackWalker.getInstance().walk(s -> s.anyMatch(frame -> frame.getMethodName().equals("dropItem")))) return; // Still allow dropping
         if (PALClientHelper.shouldBeLocked(getStack(slot), slot)) {
             cir.setReturnValue(ItemStack.EMPTY);
             cir.cancel();
@@ -41,6 +41,7 @@ public abstract class PlayerInventoryMixin {
 
     @Inject(method = "removeStack(I)Lnet/minecraft/item/ItemStack;", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelRemoveStack(int slot, CallbackInfoReturnable<ItemStack> cir) {
+        if (StackWalker.getInstance().walk(s -> s.anyMatch(frame -> frame.getMethodName().equals("dropItem")))) return; // Still allow dropping
         if (PALClientHelper.shouldBeLocked(getStack(slot), slot)) {
             cir.setReturnValue(ItemStack.EMPTY);
             cir.cancel();
@@ -76,6 +77,8 @@ public abstract class PlayerInventoryMixin {
 
     @Inject(method = "setStack", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelSetStack(int slot, ItemStack stack, CallbackInfo ci) {
+        if (StackWalker.getInstance().walk(s -> s.anyMatch(frame -> frame.getMethodName().equals("readData")))) return; // Allow NBT reading to set stacks
+
         if (PALClientHelper.shouldBeLocked(getStack(slot), slot)) ci.cancel();
         else if (PALClientHelper.shouldBeLocked(stack)) ci.cancel();
         else if (!PlayerExclusiveItemClientHelper.playerCanGet(stack.getItem())) ci.cancel();

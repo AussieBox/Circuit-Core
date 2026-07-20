@@ -16,6 +16,7 @@ import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraft.world.World;
 import org.aussiebox.circuit_core.client.helper.PlayerExclusiveItemClientHelper;
+import org.aussiebox.circuit_core.helper.PlayerExclusiveItemHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -83,10 +84,11 @@ public abstract class ItemStackMixin {
 
     @ModifyReturnValue(method = "getTooltip", at = @At("RETURN"))
     private List<Text> circuitCore$appendDisabledTooltipLine(List<Text> original, @Local(argsOnly = true) TooltipType type) {
+        if (!PlayerExclusiveItemHelper.canBeExclusive(getItem())) return original;
         if (type.isAdvanced()) {
             List<Text> list = new ArrayList<>(original);
-            if (PlayerExclusiveItemClientHelper.playerCanGet(((ItemStack) (Object) this).getItem())) list.add(Text.translatable("tooltip.circuit_core.item_disallowed").withColor(Colors.LIGHT_RED));
-            else list.add(Text.translatable("tooltip.circuit_core.item_allowed").withColor(Colors.GRAY));
+            if (!PlayerExclusiveItemClientHelper.playerCanGet(getItem())) list.add(Text.translatable("tooltip.circuit_core.item_disallowed").formatted(Formatting.RED));
+            else list.add(Text.translatable("tooltip.circuit_core.item_allowed").formatted(Formatting.DARK_GRAY));
             return list;
         }
         return original;

@@ -25,6 +25,8 @@ public abstract class ScreenHandlerMixin {
 
     @Inject(method = "onSlotClick", at = @At("HEAD"), cancellable = true)
     private void circuitCore$cancelSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
+        if (actionType == SlotActionType.THROW) return;
+
         if (slotIndex < 0) return;
         Slot slot = slots.get(slotIndex);
         if (PALClientHelper.shouldBeLocked(slot.getStack(), slotIndex)) ci.cancel();

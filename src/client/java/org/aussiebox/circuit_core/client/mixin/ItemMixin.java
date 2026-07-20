@@ -1,5 +1,6 @@
 package org.aussiebox.circuit_core.client.mixin;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -9,6 +10,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 //? 1.21.1
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.aussiebox.circuit_core.client.helper.PlayerExclusiveItemClientHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -53,6 +55,17 @@ public abstract class ItemMixin {
     private void circuitCore$cancelUseOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         if (!PlayerExclusiveItemClientHelper.playerCanGet(asItem())) {
             cir.setReturnValue(ActionResult.FAIL);
+            cir.cancel();
+        }
+    }
+
+    @Inject(method = "canMine", at = @At("HEAD"), cancellable = true)
+    //? 1.21.1
+    private void circuitCore$cancelMine(BlockState state, World world, BlockPos pos, PlayerEntity miner, CallbackInfoReturnable<Boolean> cir) {
+    //? >=1.21.8
+    //private void circuitCore$cancelMine(ItemStack stack, BlockState state, World world, BlockPos pos, LivingEntity user, CallbackInfoReturnable<Boolean> cir) {
+        if (!PlayerExclusiveItemClientHelper.playerCanGet(asItem())) {
+            cir.setReturnValue(false);
             cir.cancel();
         }
     }
